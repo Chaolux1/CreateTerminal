@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "create:empty_blaze_burner"
+    },
+    "X": {
+      "item": "create:brass_sheet"
+    },
+    "G": {
+      "item": "create:google"
+    },
+    "H": {
+      "item": "create:brass_nugget"
+    }
+  },
+  "pattern": [
+    " XH",
+    "XGX",
+    " # "
+  ],
+  "result": {
+    "item": "createterminal:remote_terminal"
+  },
+  "show_notification": true
+}

@@ -55,7 +55,7 @@ public class CreateTerminal
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES)
-            event.accept(EXAMPLE_BLOCK_ITEM);
+            event.accept(ModItems.REMOTE_TERMINAL);
     }
 
     @SubscribeEvent
