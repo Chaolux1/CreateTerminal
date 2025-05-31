@@ -21,7 +21,7 @@ public class ModItems {
     }
 
     static {
-        ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "createcardboardthings");
+        ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "createterminal");
 
         REMOTE_TERMINAL = registerWithTab("remote_terminal", () -> new RemoteTerminalItem(basicItem()));
     }
