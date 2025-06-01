@@ -2,5 +2,6 @@
   "item.createterminal.remote_terminal": "Remote Terminal",
 
   "tooltip.createterminal.bound": "Bound to: %s, %s, %s",
-  "tooltip.createterminal.not_bound": "Not Bound"
+  "tooltip.createterminal.not_bound": "Not Bound",
+  "tooltip.createterminal.lost": "Terminal connection lost"
 }

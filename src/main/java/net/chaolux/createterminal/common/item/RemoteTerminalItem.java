@@ -57,24 +57,22 @@ public class RemoteTerminalItem extends Item {
             ItemStack stack=player.getItemInHand(hand);
             CompoundTag tag=stack.getTag();
             if(tag==null || !tag.contains("boundPos") || !tag.contains("boundDim")) {
-                player.displayClientMessage(Component.literal("[debug] Not bound"),true);
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.not_bound"),true);
                 return InteractionResultHolder.pass(stack);
             }
             BlockPos pos=BlockPos.of(tag.getLong("boundPos"));
             String dimId=tag.getString("boundDim");
             ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimId));
-            player.displayClientMessage(Component.literal("[debug] boundPos:"+pos+",BoundDim:"+dimId),true);
-            player.displayClientMessage(Component.literal("[debug] CurrentDim:"+level.dimension().location()),true);
             if(!level.dimension().equals(dimKey)) {
-                player.displayClientMessage(Component.literal("[debug] Wrong dim"), true);
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
                 return InteractionResultHolder.fail(stack);
             }
-            if(!level.hasChunkAt(pos)) {
-                player.displayClientMessage(Component.literal("[debug] Chunk pos not loded"),true);
+            if(!level.hasChunkAt(pos) || !(level.getBlockEntity(pos) instanceof StockTickerBlockEntity)) {
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
+                return InteractionResultHolder.fail(stack);
             }
             MenuType<?> menuType=ForgeRegistries.MENU_TYPES.getValue(new ResourceLocation("create", "stock_keeper_request"));
             if(menuType==null) {
-                player.displayClientMessage(Component.literal("[debug] MenuType not find"),true);
                 return InteractionResultHolder.fail(stack);
             }
             FriendlyByteBuf menuBuf=new FriendlyByteBuf(Unpooled.buffer());
@@ -82,7 +80,6 @@ public class RemoteTerminalItem extends Item {
             menuBuf.writeBoolean(false);
             menuBuf.writeBlockPos(pos);
             MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(menuType, id,inv,menuBuf),Component.literal("Stock Keeper"));
-            player.displayClientMessage(Component.literal("[debug] Opening"),true);
             NetworkHooks.openScreen((ServerPlayer) player,provider,data-> {
                 data.writeBoolean(false);
                 data.writeBoolean(false);
