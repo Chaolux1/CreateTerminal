@@ -5,6 +5,7 @@ import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestMenu;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -19,11 +20,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.List;
 
 
 public class RemoteTerminalItem extends Item {
@@ -87,5 +91,16 @@ public class RemoteTerminalItem extends Item {
             return InteractionResultHolder.success(stack);
         }
         return InteractionResultHolder.pass(player.getItemInHand(hand));
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        CompoundTag tag=stack.getTag();
+        if(tag !=null && tag.contains("boundPos") && tag.contains("boundDim")) {
+            BlockPos pos=BlockPos.of(tag.getLong("boundPos"));
+            tooltip.add(Component.translatable("tooltip.createterminal.bound",pos.getX(),pos.getY(),pos.getZ()).withStyle(ChatFormatting.GRAY));
+        } else {
+            tooltip.add(Component.translatable("tooltip.createterminal.not_bound").withStyle(ChatFormatting.GRAY));
+        }
     }
 }

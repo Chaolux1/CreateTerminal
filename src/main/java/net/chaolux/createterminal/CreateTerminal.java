@@ -3,7 +3,9 @@ package net.chaolux.createterminal;
 import com.mojang.logging.LogUtils;
 import net.chaolux.createterminal.registry.item.ModItems;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -70,7 +72,13 @@ public class CreateTerminal
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-
+            event.enqueueWork(()-> {
+                ItemProperties.register(ModItems.REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
+                    if(stack.hasTag() && stack.getTag().contains("boundPos") && stack.getTag().contains("boundDim"))
+                        return 1.0f;
+                    return 0.0f;
+                });
+            });
         }
     }
 }
