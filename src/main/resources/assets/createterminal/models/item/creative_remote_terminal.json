@@ -1,0 +1,14 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "createterminal:item/creative_remote_terminal_off"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "bound": 1
+      },
+      "model": "createterminal:item/creative_remote_terminal_on"
+    }
+  ]
+}

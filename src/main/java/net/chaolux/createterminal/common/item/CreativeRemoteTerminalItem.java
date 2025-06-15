@@ -27,12 +27,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
-public class AdvancedRemoteTerminalItem extends Item {
-    public AdvancedRemoteTerminalItem(Properties p_41383_) {
+public class CreativeRemoteTerminalItem extends Item {
+    public CreativeRemoteTerminalItem(Properties p_41383_) {
         super(p_41383_);
     }
-
-    private static final int MAX_TERMINALS=25;
 
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
@@ -42,7 +40,7 @@ public class AdvancedRemoteTerminalItem extends Item {
         if(!(be instanceof StockTickerBlockEntity)) return InteractionResult.PASS;
         ItemStack stack=ctx.getItemInHand();
         CompoundTag tag=stack.getOrCreateTag();
-        ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
+        ListTag posList=tag.getList("terminals", Tag.TAG_LONG);
         ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
         long newPosLong=pos.asLong();
         String newDim=level.dimension().location().toString();
@@ -53,10 +51,6 @@ public class AdvancedRemoteTerminalItem extends Item {
                 ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
                 return InteractionResult.FAIL;
             }
-        }
-        if(posList.size()>=MAX_TERMINALS) {
-            ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.limit"),true);
-            return InteractionResult.FAIL;
         }
         posList.add(LongTag.valueOf(newPosLong));
         dimList.add(StringTag.valueOf(newDim));
@@ -104,9 +98,9 @@ public class AdvancedRemoteTerminalItem extends Item {
         buf.writeBlockPos(bestPos);
         final MenuType<?> finalMenuType=menuType;
         final FriendlyByteBuf finalBuf=buf;
-        MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,finalBuf),Component.literal("Stock Keeper"));
+        MenuProvider provider=new SimpleMenuProvider((id, inv, ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,finalBuf),Component.literal("Stock Keeper"));
         final BlockPos finalBestPos=bestPos;
-        NetworkHooks.openScreen((ServerPlayer) player,provider,data-> {
+        NetworkHooks.openScreen((ServerPlayer) player,provider, data-> {
             data.writeBoolean(false);
             data.writeBoolean(false);
             data.writeBlockPos(finalBestPos);
@@ -117,6 +111,7 @@ public class AdvancedRemoteTerminalItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.translatable("tooltip.createterminal.creative").withStyle(ChatFormatting.DARK_PURPLE));
         CompoundTag tag=stack.getTag();
         if(tag!=null && tag.contains("terminals")) {
             ListTag posList=tag.getList("terminals",Tag.TAG_LONG);

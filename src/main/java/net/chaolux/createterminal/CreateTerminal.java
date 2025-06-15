@@ -59,6 +59,7 @@ public class CreateTerminal
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(ModItems.REMOTE_TERMINAL);
             event.accept(ModItems.ADVANCED_REMOTE_TERMINAL);
+            event.accept(ModItems.CREATIVE_REMOTE_TERMINAL);
         }
     }
 
@@ -82,6 +83,12 @@ public class CreateTerminal
                 });
 
                 ItemProperties.register(ModItems.ADVANCED_REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
+                    if(stack.hasTag() && stack.getTag().contains("terminals"))
+                        return 1.0f;
+                    return 0.0f;
+                });
+
+                ItemProperties.register(ModItems.CREATIVE_REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
                     if(stack.hasTag() && stack.getTag().contains("terminals"))
                         return 1.0f;
                     return 0.0f;

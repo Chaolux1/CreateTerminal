@@ -1,6 +1,7 @@
 {
   "item.createterminal.remote_terminal": "Remote Terminal",
   "item.createterminal.advanced_remote_terminal": "Advanced Remote Terminal",
+  "item.createterminal.creative_remote_terminal": "Creative Remote Terminal",
 
   "tooltip.createterminal.bound": "Bound to: %s, %s, %s",
   "tooltip.createterminal.not_bound": "Not Bound",
@@ -10,5 +11,6 @@
   "tooltip.createterminal.bound_success": "Bound terminal at %s",
   "tooltip.createterminal.connected": "Connect to: %s",
   "tooltip.createterminal.header": "Terminals:",
-  "tooltip.createterminal.more": "Hold Ctrl to show %s more..."
+  "tooltip.createterminal.more": "Hold [Shift] to show %s more...",
+  "tooltip.createterminal.creative": "Unlimited bound (Creative only)"
 }
