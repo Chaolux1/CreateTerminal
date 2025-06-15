@@ -56,8 +56,10 @@ public class CreateTerminal
 
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
-        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES)
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(ModItems.REMOTE_TERMINAL);
+            event.accept(ModItems.ADVANCED_REMOTE_TERMINAL);
+        }
     }
 
     @SubscribeEvent
@@ -75,6 +77,12 @@ public class CreateTerminal
             event.enqueueWork(()-> {
                 ItemProperties.register(ModItems.REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
                     if(stack.hasTag() && stack.getTag().contains("boundPos") && stack.getTag().contains("boundDim"))
+                        return 1.0f;
+                    return 0.0f;
+                });
+
+                ItemProperties.register(ModItems.ADVANCED_REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
+                    if(stack.hasTag() && stack.getTag().contains("terminals"))
                         return 1.0f;
                     return 0.0f;
                 });

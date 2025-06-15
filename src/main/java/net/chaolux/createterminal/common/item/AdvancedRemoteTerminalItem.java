@@ -1,0 +1,140 @@
+package net.chaolux.createterminal.common.item;
+
+import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
+import io.netty.buffer.Unpooled;
+import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.*;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.*;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.List;
+
+public class AdvancedRemoteTerminalItem extends Item {
+    public AdvancedRemoteTerminalItem(Properties p_41383_) {
+        super(p_41383_);
+    }
+
+    private static final int MAX_TERMINALS=25;
+
+    @Override
+    public InteractionResult useOn(UseOnContext ctx) {
+        Level level=ctx.getLevel();
+        BlockPos pos=ctx.getClickedPos();
+        BlockEntity be=level.getBlockEntity(pos);
+        if(!(be instanceof StockTickerBlockEntity)) return InteractionResult.PASS;
+        ItemStack stack=ctx.getItemInHand();
+        CompoundTag tag=stack.getOrCreateTag();
+        ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
+        ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
+        long newPosLong=pos.asLong();
+        String newDim=level.dimension().location().toString();
+        for(int i=0; i<posList.size(); i++) {
+            long existing=((LongTag) posList.get(i)).getAsLong();
+            String dimStr=dimList.getString(i);
+            if(existing==newPosLong && dimStr.equals(newDim)) {
+                ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
+                return InteractionResult.FAIL;
+            }
+        }
+        if(posList.size()>=MAX_TERMINALS) {
+            ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.limit"),true);
+            return InteractionResult.FAIL;
+        }
+        posList.add(LongTag.valueOf(newPosLong));
+        dimList.add(StringTag.valueOf(newDim));
+        tag.put("terminals",posList);
+        tag.put("dims",dimList);
+        ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        if(level.isClientSide) return InteractionResultHolder.pass(player.getItemInHand(hand));
+        ItemStack stack=player.getItemInHand(hand);
+        CompoundTag tag=stack.getTag();
+        if(tag==null || !tag.contains("terminals") || !tag.contains("dims")) {
+            player.displayClientMessage(Component.translatable("tooltip.createterminal.not_bound"),true);
+            return InteractionResultHolder.pass(stack);
+        }
+        ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
+        ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
+        BlockPos bestPos=null;
+        double bestDist=Double.MAX_VALUE;
+        for(int i=0; i<posList.size(); i++) {
+            long raw=((LongTag) posList.get(i)).getAsLong();
+            BlockPos pos=BlockPos.of(raw);
+            String dimStr=dimList.getString(i);
+            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimStr));
+            if(!level.dimension().equals(dimKey)) continue;
+            if(!level.hasChunkAt(pos)) continue;
+            double dist=player.blockPosition().distSqr(pos);
+            if(dist<bestDist) {
+                bestDist=dist;
+                bestPos=pos;
+            }
+        }
+        if(bestPos==null) {
+            player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
+            return InteractionResultHolder.fail(stack);
+        }
+        MenuType<?> menuType= ForgeRegistries.MENU_TYPES.getValue(new ResourceLocation("create","stock_keeper_request"));
+        if(menuType==null) return InteractionResultHolder.fail(stack);
+        FriendlyByteBuf buf=new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeBoolean(false);
+        buf.writeBoolean(false);
+        buf.writeBlockPos(bestPos);
+        final MenuType<?> finalMenuType=menuType;
+        final FriendlyByteBuf finalBuf=buf;
+        MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,finalBuf),Component.literal("Stock Keeper"));
+        final BlockPos finalBestPos=bestPos;
+        NetworkHooks.openScreen((ServerPlayer) player,provider,data-> {
+            data.writeBoolean(false);
+            data.writeBoolean(false);
+            data.writeBlockPos(finalBestPos);
+        });
+        player.displayClientMessage(Component.translatable("tooltip.createterminal.connected",bestPos.toShortString()),true);
+        return InteractionResultHolder.success(stack);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        CompoundTag tag=stack.getTag();
+        if(tag!=null && tag.contains("terminals")) {
+            ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
+            tooltip.add(Component.translatable("tooltip.createterminal.header").withStyle(ChatFormatting.GRAY));
+            int show=0;
+            boolean showAll= Screen.hasControlDown();
+            for(int i=0; i<posList.size(); i++) {
+                if(show>=5 && !showAll) {
+                    tooltip.add(Component.translatable("tooltip.createterminal.more",posList.size()-show).withStyle(ChatFormatting.GRAY));
+                    break;
+                }
+                long raw=((LongTag) posList.get(i)).getAsLong();
+                BlockPos pos=BlockPos.of(raw);
+                tooltip.add(Component.translatable("tooltip.createterminal.bound",pos.getX(),pos.getY(),pos.getZ()).withStyle(ChatFormatting.GRAY));
+                show++;
+            }
+        } else {
+            tooltip.add(Component.translatable("tooltip.createterminal.not_bound").withStyle(ChatFormatting.GRAY));
+        }
+    }
+}

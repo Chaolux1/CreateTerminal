@@ -1,7 +1,14 @@
 {
   "item.createterminal.remote_terminal": "Remote Terminal",
+  "item.createterminal.advanced_remote_terminal": "Advanced Remote Terminal",
 
   "tooltip.createterminal.bound": "Bound to: %s, %s, %s",
   "tooltip.createterminal.not_bound": "Not Bound",
-  "tooltip.createterminal.lost": "Terminal connection lost"
+  "tooltip.createterminal.lost": "Terminal connection lost",
+  "tooltip.createterminal.limit": "Terminal limit reached",
+  "tooltip.createterminal.bound_existing": "Terminal already bound",
+  "tooltip.createterminal.bound_success": "Bound terminal at %s",
+  "tooltip.createterminal.connected": "Connect to: %s",
+  "tooltip.createterminal.header": "Terminals:",
+  "tooltip.createterminal.more": "Hold Ctrl to show %s more..."
 }

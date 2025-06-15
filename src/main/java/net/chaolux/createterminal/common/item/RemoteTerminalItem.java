@@ -46,7 +46,7 @@ public class RemoteTerminalItem extends Item {
         tag.putLong("boundPos",pos.asLong());
         tag.putString("boundDim",level.dimension().location().toString());
         if(!level.isClientSide) {
-            ctx.getPlayer().displayClientMessage(Component.literal("Bound at " +pos),true);
+            ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound",pos.getX(),pos.getY(),pos.getZ()),true);
         }
         return InteractionResult.SUCCESS;
     }
