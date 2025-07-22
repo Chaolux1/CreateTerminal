@@ -2,10 +2,13 @@ package net.chaolux.createterminal;
 
 import com.mojang.logging.LogUtils;
 import net.chaolux.createterminal.common.client.ClientAdvancementCache;
+import net.chaolux.createterminal.common.client.ClientKeyBind;
 import net.chaolux.createterminal.common.utility.StyleUtils;
 import net.chaolux.createterminal.registry.item.ModItems;
 import net.chaolux.createterminal.registry.network.ModNetwork;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientRegistryLayer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;

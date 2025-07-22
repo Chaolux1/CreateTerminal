@@ -56,5 +56,16 @@ public class KeyInputHandler {
         } else {
             wasPress=false;
         }
+        if(ClientKeyBind.OPEN_TERMINAL.consumeClick()) {
+            if(player == null) return;
+            int selectSlot=player.getInventory().selected;
+            ItemStack stack=player.getInventory().getItem(8);
+            if(!(stack.getItem() instanceof RemoteTerminalItem)) return;
+            player.getInventory().selected=8;
+            if(player !=null)
+                Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player,InteractionHand.MAIN_HAND);
+            player.getInventory().selected=selectSlot;
+
+        }
     }
 }
