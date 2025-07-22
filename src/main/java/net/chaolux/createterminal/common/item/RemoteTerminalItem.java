@@ -5,6 +5,8 @@ import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestMenu;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
+import net.chaolux.createterminal.common.network.SyncAdvancementPacket;
+import net.chaolux.createterminal.registry.network.ModNetwork;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -29,6 +31,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
+import static net.chaolux.createterminal.common.utility.StyleUtils.hasAdvancement;
+
 
 public class RemoteTerminalItem extends Item {
     public RemoteTerminalItem(Properties p_41383_) {
@@ -45,6 +49,9 @@ public class RemoteTerminalItem extends Item {
         CompoundTag tag=stack.getOrCreateTag();
         tag.putLong("boundPos",pos.asLong());
         tag.putString("boundDim",level.dimension().location().toString());
+        if(!tag.contains("style")) {
+            setStyle(stack,"blaze");
+        }
         if(!level.isClientSide) {
             ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound",pos.getX(),pos.getY(),pos.getZ()),true);
         }
@@ -71,6 +78,8 @@ public class RemoteTerminalItem extends Item {
                 player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
                 return InteractionResultHolder.fail(stack);
             }
+            boolean unlock=hasAdvancement((ServerPlayer) player,new ResourceLocation("minecraft:end/kill_dragon"));
+            ModNetwork.sendToClient((ServerPlayer) player,new SyncAdvancementPacket(unlock));
             MenuType<?> menuType=ForgeRegistries.MENU_TYPES.getValue(new ResourceLocation("create", "stock_keeper_request"));
             if(menuType==null) {
                 return InteractionResultHolder.fail(stack);
@@ -99,5 +108,15 @@ public class RemoteTerminalItem extends Item {
         } else {
             tooltip.add(Component.translatable("tooltip.createterminal.not_bound").withStyle(ChatFormatting.GRAY));
         }
+    }
+
+    public static void setStyle(ItemStack stack, String style) {
+        CompoundTag styles=stack.getOrCreateTag();
+        styles.putString("style",style);
+    }
+
+    public static String getStyle(ItemStack stack) {
+        CompoundTag styles=stack.getTag();
+        return styles !=null && styles.contains("style") ? styles.getString("style"):"default";
     }
 }

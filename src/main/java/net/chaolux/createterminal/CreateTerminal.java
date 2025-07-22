@@ -1,7 +1,10 @@
 package net.chaolux.createterminal;
 
 import com.mojang.logging.LogUtils;
+import net.chaolux.createterminal.common.client.ClientAdvancementCache;
+import net.chaolux.createterminal.common.utility.StyleUtils;
 import net.chaolux.createterminal.registry.item.ModItems;
+import net.chaolux.createterminal.registry.network.ModNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.registries.Registries;
@@ -42,6 +45,7 @@ public class CreateTerminal
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.ITEMS.register(modEventBus);
+        ModNetwork.register();
 
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
@@ -76,12 +80,6 @@ public class CreateTerminal
         public static void onClientSetup(FMLClientSetupEvent event)
         {
             event.enqueueWork(()-> {
-                ItemProperties.register(ModItems.REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
-                    if(stack.hasTag() && stack.getTag().contains("boundPos") && stack.getTag().contains("boundDim"))
-                        return 1.0f;
-                    return 0.0f;
-                });
-
                 ItemProperties.register(ModItems.ADVANCED_REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
                     if(stack.hasTag() && stack.getTag().contains("terminals"))
                         return 1.0f;
@@ -92,6 +90,23 @@ public class CreateTerminal
                     if(stack.hasTag() && stack.getTag().contains("terminals"))
                         return 1.0f;
                     return 0.0f;
+                });
+
+                ItemProperties.register(ModItems.REMOTE_TERMINAL.get(),new ResourceLocation("styles"),(stack,world,entity,seed)-> {
+                    if(stack == null || !stack.hasTag()) return 0f;
+                    boolean bound=stack.getTag().contains("boundPos") && stack.getTag().contains("boundDim");
+                    if(!bound) return 0f;
+                    String style=stack.getTag().getString("style");
+                    if(style.equals("cardboard") && !StyleUtils.isMod("createcardboardthings")) return 1f;
+                    if(style.equals("end") && !ClientAdvancementCache.hasDragonKill()) return 1f;
+                    return switch (style) {
+                        case "blaze"->1f;
+                        case "parrot"->2f;
+                        case "cat"->3f;
+                        case "cardboard"->4f;
+                        case "end"->5f;
+                        default -> 0f;
+                    };
                 });
             });
         }
