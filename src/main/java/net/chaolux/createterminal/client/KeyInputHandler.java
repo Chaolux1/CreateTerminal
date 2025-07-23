@@ -1,4 +1,4 @@
-package net.chaolux.createterminal.common.client;
+package net.chaolux.createterminal.client;
 
 import net.chaolux.createterminal.common.item.RemoteTerminalItem;
 import net.minecraft.client.Minecraft;
@@ -12,9 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.checkerframework.checker.units.qual.C;
 
-import static net.chaolux.createterminal.common.utility.StyleUtils.hasAdvancement;
 import static net.chaolux.createterminal.common.utility.StyleUtils.isMod;
 
 @Mod.EventBusSubscriber(modid = "createterminal", value = Dist.CLIENT)

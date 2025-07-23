@@ -7,6 +7,7 @@ import io.netty.buffer.Unpooled;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
 import net.chaolux.createterminal.common.network.SyncAdvancementPacket;
 import net.chaolux.createterminal.registry.network.ModNetwork;
+import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -17,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -54,6 +56,7 @@ public class RemoteTerminalItem extends Item {
         }
         if(!level.isClientSide) {
             ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound",pos.getX(),pos.getY(),pos.getZ()),true);
+            ctx.getLevel().playSound(null,pos,ModSounds.TERMINAL_ON.get(),SoundSource.PLAYERS,1.0f,1.0f);
         }
         return InteractionResult.SUCCESS;
     }
@@ -72,10 +75,12 @@ public class RemoteTerminalItem extends Item {
             ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimId));
             if(!level.dimension().equals(dimKey)) {
                 player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
+                player.level().playSound(null,player.blockPosition(), ModSounds.TERMINAL_LOST.get(), SoundSource.PLAYERS,1.0f,1.0f);
                 return InteractionResultHolder.fail(stack);
             }
             if(!level.hasChunkAt(pos) || !(level.getBlockEntity(pos) instanceof StockTickerBlockEntity)) {
                 player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
+                player.level().playSound(null,player.blockPosition(), ModSounds.TERMINAL_LOST.get(), SoundSource.PLAYERS,1.0f,1.0f);
                 return InteractionResultHolder.fail(stack);
             }
             boolean unlock=hasAdvancement((ServerPlayer) player,new ResourceLocation("minecraft:end/kill_dragon"));

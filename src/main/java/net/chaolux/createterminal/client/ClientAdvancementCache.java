@@ -1,4 +1,4 @@
-package net.chaolux.createterminal.common.client;
+package net.chaolux.createterminal.client;
 
 public class ClientAdvancementCache {
     private static boolean dragonKillUnlock=false;

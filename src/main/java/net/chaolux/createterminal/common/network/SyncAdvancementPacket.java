@@ -1,11 +1,8 @@
 package net.chaolux.createterminal.common.network;
 
-import com.mojang.logging.LogUtils;
-import net.chaolux.createterminal.common.client.ClientAdvancementCache;
-import net.minecraft.client.multiplayer.ClientAdvancements;
+import net.chaolux.createterminal.client.ClientAdvancementCache;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
-import org.slf4j.Logger;
 
 import java.util.function.Supplier;
 

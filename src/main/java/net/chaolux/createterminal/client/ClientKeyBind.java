@@ -1,4 +1,4 @@
-package net.chaolux.createterminal.common.client;
+package net.chaolux.createterminal.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
