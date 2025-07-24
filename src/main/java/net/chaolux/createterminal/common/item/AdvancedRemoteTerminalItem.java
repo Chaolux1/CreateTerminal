@@ -25,6 +25,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class AdvancedRemoteTerminalItem extends Item {
@@ -77,25 +79,33 @@ public class AdvancedRemoteTerminalItem extends Item {
         }
         ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
         ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
-        BlockPos bestPos=null;
-        double bestDist=Double.MAX_VALUE;
-        for(int i=0; i<posList.size(); i++) {
+
+        List<BlockPos> validPos=new ArrayList<>();
+        for(int i=0; i < posList.size(); i++) {
             long raw=((LongTag) posList.get(i)).getAsLong();
             BlockPos pos=BlockPos.of(raw);
             String dimStr=dimList.getString(i);
-            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimStr));
+            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION,new ResourceLocation(dimStr));
             if(!level.dimension().equals(dimKey)) continue;
-            if(!level.hasChunkAt(pos)) continue;
-            double dist=player.blockPosition().distSqr(pos);
-            if(dist<bestDist) {
-                bestDist=dist;
-                bestPos=pos;
-            }
+            validPos.add(pos);
         }
-        if(bestPos==null) {
+        validPos.sort(Comparator.comparingDouble(p -> player.blockPosition().distSqr(p)));
+        BlockPos bestPos=null;
+        for(BlockPos pos:validPos) {
+            if(!level.hasChunkAt(pos)) continue;
+            BlockEntity be=level.getBlockEntity(pos);
+            if(!(be instanceof StockTickerBlockEntity)) continue;
+            if(!level.getBlockState(pos).is(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("create","stock_ticker")))) {
+                continue;
+            }
+            bestPos=pos;
+            break;
+        }
+        if(bestPos == null) {
             player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
             return InteractionResultHolder.fail(stack);
         }
+
         MenuType<?> menuType= ForgeRegistries.MENU_TYPES.getValue(new ResourceLocation("create","stock_keeper_request"));
         if(menuType==null) return InteractionResultHolder.fail(stack);
         FriendlyByteBuf buf=new FriendlyByteBuf(Unpooled.buffer());
