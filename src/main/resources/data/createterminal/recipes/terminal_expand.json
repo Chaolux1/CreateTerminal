@@ -1,0 +1,14 @@
+{
+  "type": "createterminal:terminal_expand",
+  "ingredients": [
+    {
+      "item": "createterminal:advanced_remote_terminal"
+    },
+    {
+      "item": "createterminal:memory_core"
+    }
+  ],
+  "result": {
+    "item": "createterminal:advanced_remote_terminal"
+  }
+}

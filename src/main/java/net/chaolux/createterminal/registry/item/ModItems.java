@@ -16,6 +16,7 @@ public class ModItems {
     public static final RegistryObject<Item> REMOTE_TERMINAL;
     public static final RegistryObject<Item> ADVANCED_REMOTE_TERMINAL;
     public static final RegistryObject<Item> CREATIVE_REMOTE_TERMINAL;
+    public static final RegistryObject<Item> MEMORY_CORE;
 
     public static RegistryObject<Item> registerWithTab(String name, Supplier<Item> supplier) {
         return ITEMS.register(name, supplier);
@@ -28,8 +29,9 @@ public class ModItems {
     static {
         ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "createterminal");
 
-        REMOTE_TERMINAL = registerWithTab("remote_terminal", () -> new RemoteTerminalItem(basicItem()));
-        ADVANCED_REMOTE_TERMINAL = registerWithTab("advanced_remote_terminal", () -> new AdvancedRemoteTerminalItem(basicItem()));
-        CREATIVE_REMOTE_TERMINAL = registerWithTab("creative_remote_terminal", () -> new CreativeRemoteTerminalItem(basicItem().rarity(Rarity.EPIC)));
+        REMOTE_TERMINAL = registerWithTab("remote_terminal", () -> new RemoteTerminalItem(basicItem().stacksTo(1)));
+        ADVANCED_REMOTE_TERMINAL = registerWithTab("advanced_remote_terminal", () -> new AdvancedRemoteTerminalItem(basicItem().stacksTo(1)));
+        CREATIVE_REMOTE_TERMINAL = registerWithTab("creative_remote_terminal", () -> new CreativeRemoteTerminalItem(basicItem().rarity(Rarity.EPIC).stacksTo(1)));
+        MEMORY_CORE = registerWithTab("memory_core", () -> new Item(basicItem()));
     }
 }

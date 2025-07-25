@@ -5,6 +5,7 @@ import net.chaolux.createterminal.client.ClientAdvancementCache;
 import net.chaolux.createterminal.common.utility.StyleUtils;
 import net.chaolux.createterminal.registry.item.ModItems;
 import net.chaolux.createterminal.registry.network.ModNetwork;
+import net.chaolux.createterminal.registry.recipe.ModRecipes;
 import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
@@ -35,6 +36,8 @@ public class CreateTerminal
         ModItems.ITEMS.register(modEventBus);
         ModSounds.SOUND_EVENTS.register(modEventBus);
         ModNetwork.register();
+        ModRecipes.SERIALIZERS.register(modEventBus);
+        ModRecipes.TYPES.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
@@ -53,6 +56,9 @@ public class CreateTerminal
             event.accept(ModItems.REMOTE_TERMINAL);
             event.accept(ModItems.ADVANCED_REMOTE_TERMINAL);
             event.accept(ModItems.CREATIVE_REMOTE_TERMINAL);
+        }
+        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(ModItems.MEMORY_CORE);
         }
     }
 

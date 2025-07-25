@@ -27,6 +27,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
+import static net.chaolux.createterminal.common.utility.StyleUtils.styleBracket;
+
 public class CreativeRemoteTerminalItem extends Item {
     public CreativeRemoteTerminalItem(Properties p_41383_) {
         super(p_41383_);
@@ -120,7 +122,7 @@ public class CreativeRemoteTerminalItem extends Item {
             boolean showAll= Screen.hasShiftDown();
             for(int i=0; i<posList.size(); i++) {
                 if(show>=5 && !showAll) {
-                    tooltip.add(Component.translatable("tooltip.createterminal.more",posList.size()-show).withStyle(ChatFormatting.GRAY));
+                    tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.more",posList.size()-show).withStyle(ChatFormatting.DARK_GRAY)));
                     break;
                 }
                 long raw=((LongTag) posList.get(i)).getAsLong();

@@ -29,12 +29,18 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static net.chaolux.createterminal.common.utility.StyleUtils.styleBracket;
+
 public class AdvancedRemoteTerminalItem extends Item {
     public AdvancedRemoteTerminalItem(Properties p_41383_) {
         super(p_41383_);
     }
 
     private static final int MAX_TERMINALS=25;
+    private static int getMaxTerminals(ItemStack stack) {
+        CompoundTag tag=stack.getOrCreateTag();
+        return MAX_TERMINALS + tag.getInt("expand") * 10;
+    }
 
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
@@ -56,7 +62,7 @@ public class AdvancedRemoteTerminalItem extends Item {
                 return InteractionResult.FAIL;
             }
         }
-        if(posList.size()>=MAX_TERMINALS) {
+        if(posList.size() >= getMaxTerminals(stack)) {
             ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.limit"),true);
             return InteractionResult.FAIL;
         }
@@ -130,12 +136,12 @@ public class AdvancedRemoteTerminalItem extends Item {
         CompoundTag tag=stack.getTag();
         if(tag!=null && tag.contains("terminals")) {
             ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
-            tooltip.add(Component.translatable("tooltip.createterminal.header").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("tooltip.createterminal.header").withStyle(ChatFormatting.DARK_GRAY));
             int show=0;
             boolean showAll= Screen.hasShiftDown();
             for(int i=0; i<posList.size(); i++) {
                 if(show>=5 && !showAll) {
-                    tooltip.add(Component.translatable("tooltip.createterminal.more",posList.size()-show).withStyle(ChatFormatting.GRAY));
+                    tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.more",posList.size()-show).withStyle(ChatFormatting.DARK_GRAY)));
                     break;
                 }
                 long raw=((LongTag) posList.get(i)).getAsLong();
@@ -144,7 +150,14 @@ public class AdvancedRemoteTerminalItem extends Item {
                 show++;
             }
         } else {
-            tooltip.add(Component.translatable("tooltip.createterminal.not_bound").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("tooltip.createterminal.not_bound").withStyle(ChatFormatting.DARK_GRAY));
+        }
+        boolean showExpand=Screen.hasControlDown();
+        if(showExpand) {
+            tooltip.add(Component.translatable("tooltip.createterminal.expand", getMaxTerminals(stack)).withStyle(ChatFormatting.GRAY));
+        } else {
+            tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.ctrl_more").withStyle(ChatFormatting.DARK_GRAY)));
+
         }
     }
 }
