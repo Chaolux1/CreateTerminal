@@ -119,9 +119,4 @@ public class RemoteTerminalItem extends Item {
         CompoundTag styles=stack.getOrCreateTag();
         styles.putString("style",style);
     }
-
-    public static String getStyle(ItemStack stack) {
-        CompoundTag styles=stack.getTag();
-        return styles !=null && styles.contains("style") ? styles.getString("style"):"default";
-    }
 }

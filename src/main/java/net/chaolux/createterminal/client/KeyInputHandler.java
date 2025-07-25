@@ -1,5 +1,6 @@
 package net.chaolux.createterminal.client;
 
+import net.chaolux.createterminal.common.item.AdvancedRemoteTerminalItem;
 import net.chaolux.createterminal.common.item.RemoteTerminalItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -7,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
@@ -30,7 +32,8 @@ public class KeyInputHandler {
             if(!wasPress) {
                 wasPress=true;
                 ItemStack stack=player.getMainHandItem();
-                if(!(stack.getItem() instanceof RemoteTerminalItem)) return;
+                Item item=stack.getItem();
+                if(!(item instanceof RemoteTerminalItem || item instanceof AdvancedRemoteTerminalItem)) return;
                 CompoundTag tag=stack.getOrCreateTag();
                 String current=tag.getString("style");
                 int index=0;
@@ -45,7 +48,11 @@ public class KeyInputHandler {
                     String condition=STYLES[index];
                     if(condition.equals("cardboard") && !isMod("createcardboardthings")) continue;
                     if(condition.equals("end") && !ClientAdvancementCache.hasDragonKill()) continue;
-                    RemoteTerminalItem.setStyle(stack,condition);
+                    if(item instanceof AdvancedRemoteTerminalItem) {
+                        AdvancedRemoteTerminalItem.setStyle(stack,condition);
+                    } else if(item instanceof RemoteTerminalItem) {
+                        RemoteTerminalItem.setStyle(stack,condition);
+                    }
                     player.setItemInHand(InteractionHand.MAIN_HAND,stack.copy());
                     player.displayClientMessage(Component.literal("Style: "+STYLES[index]),true);
                     break;
@@ -58,7 +65,7 @@ public class KeyInputHandler {
             if(player == null) return;
             int selectSlot=player.getInventory().selected;
             ItemStack stack=player.getInventory().getItem(8);
-            if(!(stack.getItem() instanceof RemoteTerminalItem)) return;
+            if(!(stack.getItem() instanceof RemoteTerminalItem || stack.getItem() instanceof AdvancedRemoteTerminalItem)) return;
             player.getInventory().selected=8;
             if(player !=null)
                 Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player,InteractionHand.MAIN_HAND);

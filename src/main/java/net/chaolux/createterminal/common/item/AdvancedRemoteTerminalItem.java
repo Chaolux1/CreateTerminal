@@ -3,6 +3,9 @@ package net.chaolux.createterminal.common.item;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
+import net.chaolux.createterminal.common.network.SyncAdvancementPacket;
+import net.chaolux.createterminal.registry.network.ModNetwork;
+import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -13,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static net.chaolux.createterminal.common.utility.StyleUtils.hasAdvancement;
 import static net.chaolux.createterminal.common.utility.StyleUtils.styleBracket;
 
 public class AdvancedRemoteTerminalItem extends Item {
@@ -52,6 +57,9 @@ public class AdvancedRemoteTerminalItem extends Item {
         CompoundTag tag=stack.getOrCreateTag();
         ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
         ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
+        if(!tag.contains("style")) {
+            setStyle(stack,"blaze");
+        }
         long newPosLong=pos.asLong();
         String newDim=level.dimension().location().toString();
         for(int i=0; i<posList.size(); i++) {
@@ -63,6 +71,7 @@ public class AdvancedRemoteTerminalItem extends Item {
             }
         }
         if(posList.size() >= getMaxTerminals(stack)) {
+            ctx.getLevel().playSound(null,pos,ModSounds.TERMINAL_LOST.get(),SoundSource.PLAYERS,1.0f,1.0f);
             ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.limit"),true);
             return InteractionResult.FAIL;
         }
@@ -70,6 +79,7 @@ public class AdvancedRemoteTerminalItem extends Item {
         dimList.add(StringTag.valueOf(newDim));
         tag.put("terminals",posList);
         tag.put("dims",dimList);
+        ctx.getLevel().playSound(null,pos,ModSounds.TERMINAL_ON.get(),SoundSource.PLAYERS,1.0f,1.0f);
         ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
         return InteractionResult.SUCCESS;
     }
@@ -108,10 +118,12 @@ public class AdvancedRemoteTerminalItem extends Item {
             break;
         }
         if(bestPos == null) {
+            player.level().playSound(null,player.blockPosition(), ModSounds.TERMINAL_LOST.get(), SoundSource.PLAYERS,1.0f,1.0f);
             player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
             return InteractionResultHolder.fail(stack);
         }
-
+        boolean unlock=hasAdvancement((ServerPlayer) player,new ResourceLocation("minecraft:end/kill_dragon"));
+        ModNetwork.sendToClient((ServerPlayer) player,new SyncAdvancementPacket(unlock));
         MenuType<?> menuType= ForgeRegistries.MENU_TYPES.getValue(new ResourceLocation("create","stock_keeper_request"));
         if(menuType==null) return InteractionResultHolder.fail(stack);
         FriendlyByteBuf buf=new FriendlyByteBuf(Unpooled.buffer());
@@ -159,5 +171,10 @@ public class AdvancedRemoteTerminalItem extends Item {
             tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.ctrl_more").withStyle(ChatFormatting.DARK_GRAY)));
 
         }
+    }
+
+    public static void setStyle(ItemStack stack, String style) {
+        CompoundTag styles=stack.getOrCreateTag();
+        styles.putString("style",style);
     }
 }

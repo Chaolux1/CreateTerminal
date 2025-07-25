@@ -75,16 +75,27 @@ public class CreateTerminal
         public static void onClientSetup(FMLClientSetupEvent event)
         {
             event.enqueueWork(()-> {
-                ItemProperties.register(ModItems.ADVANCED_REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
+                ItemProperties.register(ModItems.CREATIVE_REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
                     if(stack.hasTag() && stack.getTag().contains("terminals"))
                         return 1.0f;
                     return 0.0f;
                 });
 
-                ItemProperties.register(ModItems.CREATIVE_REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
-                    if(stack.hasTag() && stack.getTag().contains("terminals"))
-                        return 1.0f;
-                    return 0.0f;
+                ItemProperties.register(ModItems.ADVANCED_REMOTE_TERMINAL.get(),new ResourceLocation("styles"),(stack,world,entity,seed)-> {
+                            if(stack == null || !stack.hasTag()) return 0f;
+                            boolean bound=stack.getTag().contains("terminals");
+                            if(!bound) return 0f;
+                            String style=stack.getTag().getString("style");
+                            if(style.equals("cardboard") && !StyleUtils.isMod("createcardboardthings")) return 1f;
+                            if(style.equals("end") && !ClientAdvancementCache.hasDragonKill()) return 1f;
+                            return switch (style) {
+                                case "blaze"->1f;
+                                case "parrot"->2f;
+                                case "cat"->3f;
+                                case "cardboard"->4f;
+                                case "end"->5f;
+                                default -> 0f;
+                            };
                 });
 
                 ItemProperties.register(ModItems.REMOTE_TERMINAL.get(),new ResourceLocation("styles"),(stack,world,entity,seed)-> {
