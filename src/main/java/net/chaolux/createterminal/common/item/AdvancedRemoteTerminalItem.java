@@ -164,13 +164,14 @@ public class AdvancedRemoteTerminalItem extends Item {
         } else {
             tooltip.add(Component.translatable("tooltip.createterminal.not_bound").withStyle(ChatFormatting.DARK_GRAY));
         }
-        boolean showExpand=Screen.hasControlDown();
+        boolean showExpand=Screen.hasAltDown();
         if(showExpand) {
             tooltip.add(Component.translatable("tooltip.createterminal.expand", getMaxTerminals(stack)).withStyle(ChatFormatting.GRAY));
         } else {
             tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.ctrl_more").withStyle(ChatFormatting.DARK_GRAY)));
 
         }
+        tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.style").withStyle(ChatFormatting.GRAY)));
     }
 
     public static void setStyle(ItemStack stack, String style) {

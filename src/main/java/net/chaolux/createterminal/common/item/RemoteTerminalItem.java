@@ -34,6 +34,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.List;
 
 import static net.chaolux.createterminal.common.utility.StyleUtils.hasAdvancement;
+import static net.chaolux.createterminal.common.utility.StyleUtils.styleBracket;
 
 
 public class RemoteTerminalItem extends Item {
@@ -113,6 +114,7 @@ public class RemoteTerminalItem extends Item {
         } else {
             tooltip.add(Component.translatable("tooltip.createterminal.not_bound").withStyle(ChatFormatting.GRAY));
         }
+        tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.style").withStyle(ChatFormatting.GRAY)));
     }
 
     public static void setStyle(ItemStack stack, String style) {

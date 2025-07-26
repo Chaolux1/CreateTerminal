@@ -15,9 +15,17 @@
   "tooltip.createterminal.more": "Hold [Shift] to show %s more...",
   "tooltip.createterminal.creative": "Unlimited bound (Creative only)",
   "tooltip.createterminal.expand": "Max Terminals: %s",
-  "tooltip.createterminal.ctrl_more": "Hold [Ctrl] to show more...",
+  "tooltip.createterminal.ctrl_more": "Hold [Alt] to show more...",
+  "tooltip.createterminal.memory_core": "Expand Advanced Remote Terminal capacity by +10 slots for Stock Ticker",
+  "tooltip.createterminal.style": "Press [Shift+Ctrl] to change terminal style",
+
+  "style.createterminal.header": "Style: %s",
+  "style.createterminal.blaze": "Blaze",
+  "style.createterminal.parrot": "Parrot",
+  "style.createterminal.cat": "Cat",
+  "style.createterminal.cardboard": "Cardboard",
+  "style.createterminal.end": "End",
 
   "key.createterminal.createterminal": "Create Terminal",
-  "key.createterminal.open_terminal": "Open Terminal",
-  "tooltip.createterminal.memory_core": "Expand Advanced Remote Terminal capacity by +10 slots for Stock Ticker"
+  "key.createterminal.open_terminal": "Open Terminal"
 }

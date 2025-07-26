@@ -54,7 +54,7 @@ public class KeyInputHandler {
                         RemoteTerminalItem.setStyle(stack,condition);
                     }
                     player.setItemInHand(InteractionHand.MAIN_HAND,stack.copy());
-                    player.displayClientMessage(Component.literal("Style: "+STYLES[index]),true);
+                    player.displayClientMessage(Component.translatable("style.createterminal.header",Component.translatable("style.createterminal." + condition)),true);
                     break;
                 }
             }
