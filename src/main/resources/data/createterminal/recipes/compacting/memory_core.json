@@ -1,0 +1,22 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create:sturdy_sheet"
+    },
+    {
+      "item": "create:electron_tube"
+    },
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    }
+  ],
+  "results": [
+    {
+      "item": "createterminal:memory_core"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "lost": {
+    "category": "player",
+    "sounds": ["createterminal:lost"]
+  },
+  "on": {
+    "category": "player",
+    "sounds": ["createterminal:on"]
+  }
+}

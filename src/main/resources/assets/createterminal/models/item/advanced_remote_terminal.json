@@ -1,0 +1,13 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "createterminal:item/advanced_remote_terminal_off"
+  },
+  "overrides": [
+    {"predicate": {"styles": 1},"model": "createterminal:item/advanced_remote_terminal_on_blaze"},
+    {"predicate": {"styles": 2},"model": "createterminal:item/advanced_remote_terminal_on_parrot"},
+    {"predicate": {"styles": 3},"model": "createterminal:item/advanced_remote_terminal_on_cat"},
+    {"predicate": {"styles": 4},"model": "createterminal:item/advanced_remote_terminal_on_cardboard"},
+    {"predicate": {"styles": 5},"model": "createterminal:item/advanced_remote_terminal_on_end"}
+  ]
+}
