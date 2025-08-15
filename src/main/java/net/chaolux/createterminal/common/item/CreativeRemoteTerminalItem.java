@@ -3,6 +3,7 @@ package net.chaolux.createterminal.common.item;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
+import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -13,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -50,6 +52,7 @@ public class CreativeRemoteTerminalItem extends Item {
             long existing=((LongTag) posList.get(i)).getAsLong();
             String dimStr=dimList.getString(i);
             if(existing==newPosLong && dimStr.equals(newDim)) {
+                ctx.getLevel().playSound(null,pos,ModSounds.TERMINAL_LOST.get(),SoundSource.PLAYERS,1.0f,1.0f);
                 ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
                 return InteractionResult.FAIL;
             }
@@ -58,6 +61,7 @@ public class CreativeRemoteTerminalItem extends Item {
         dimList.add(StringTag.valueOf(newDim));
         tag.put("terminals",posList);
         tag.put("dims",dimList);
+        ctx.getLevel().playSound(null,pos,ModSounds.TERMINAL_ON.get(),SoundSource.PLAYERS,1.0f,1.0f);
         ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
         return InteractionResult.SUCCESS;
     }
@@ -68,6 +72,7 @@ public class CreativeRemoteTerminalItem extends Item {
         ItemStack stack=player.getItemInHand(hand);
         CompoundTag tag=stack.getTag();
         if(tag==null || !tag.contains("terminals") || !tag.contains("dims")) {
+            player.level().playSound(null,player.blockPosition(),ModSounds.TERMINAL_LOST.get(),SoundSource.PLAYERS,1.0f,1.0f);
             player.displayClientMessage(Component.translatable("tooltip.createterminal.not_bound"),true);
             return InteractionResultHolder.pass(stack);
         }
@@ -89,20 +94,21 @@ public class CreativeRemoteTerminalItem extends Item {
             }
         }
         if(bestPos==null) {
+            player.level().playSound(null,player.blockPosition(), ModSounds.TERMINAL_LOST.get(), SoundSource.PLAYERS,1.0f,1.0f);
             player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
             return InteractionResultHolder.fail(stack);
         }
         MenuType<?> menuType= ForgeRegistries.MENU_TYPES.getValue(new ResourceLocation("create","stock_keeper_request"));
         if(menuType==null) return InteractionResultHolder.fail(stack);
-        FriendlyByteBuf buf=new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBoolean(false);
-        buf.writeBoolean(false);
-        buf.writeBlockPos(bestPos);
+        BlockEntity blockEntity=level.getBlockEntity(bestPos);
+        if(!(blockEntity instanceof StockTickerBlockEntity stock)) {
+            player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
+            return InteractionResultHolder.fail(stack);
+        }
         final MenuType<?> finalMenuType=menuType;
-        final FriendlyByteBuf finalBuf=buf;
-        MenuProvider provider=new SimpleMenuProvider((id, inv, ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,finalBuf),Component.literal("Stock Keeper"));
-        final BlockPos finalBestPos=bestPos;
-        NetworkHooks.openScreen((ServerPlayer) player,provider, data-> {
+        MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,stock),Component.literal("Stock Keeper"));
+        BlockPos finalBestPos=bestPos;
+        NetworkHooks.openScreen((ServerPlayer) player,provider,data-> {
             data.writeBoolean(false);
             data.writeBoolean(false);
             data.writeBlockPos(finalBestPos);

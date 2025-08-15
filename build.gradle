@@ -63,7 +63,7 @@ repositories {
 }
 
 dependencies {
-    implementation fg.deobf("curse.maven:create-328085:6323270")
+    implementation fg.deobf("curse.maven:create-328085:6641603")
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 }
 

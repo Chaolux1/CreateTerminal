@@ -68,6 +68,7 @@ public class RemoteTerminalItem extends Item {
             ItemStack stack=player.getItemInHand(hand);
             CompoundTag tag=stack.getTag();
             if(tag==null || !tag.contains("boundPos") || !tag.contains("boundDim")) {
+                player.level().playSound(null,player.blockPosition(),ModSounds.TERMINAL_LOST.get(),SoundSource.PLAYERS,1.0f,1.0f);
                 player.displayClientMessage(Component.translatable("tooltip.createterminal.not_bound"),true);
                 return InteractionResultHolder.pass(stack);
             }
@@ -90,11 +91,12 @@ public class RemoteTerminalItem extends Item {
             if(menuType==null) {
                 return InteractionResultHolder.fail(stack);
             }
-            FriendlyByteBuf menuBuf=new FriendlyByteBuf(Unpooled.buffer());
-            menuBuf.writeBoolean(false);
-            menuBuf.writeBoolean(false);
-            menuBuf.writeBlockPos(pos);
-            MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(menuType, id,inv,menuBuf),Component.literal("Stock Keeper"));
+            BlockEntity blockEntity=level.getBlockEntity(pos);
+            if(!(blockEntity instanceof StockTickerBlockEntity stock)) {
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
+                return InteractionResultHolder.fail(stack);
+            }
+            MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(menuType, id,inv,stock),Component.literal("Stock Keeper"));
             NetworkHooks.openScreen((ServerPlayer) player,provider,data-> {
                 data.writeBoolean(false);
                 data.writeBoolean(false);
