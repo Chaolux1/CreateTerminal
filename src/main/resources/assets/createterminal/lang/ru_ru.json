@@ -1,0 +1,31 @@
+{
+  "item.createterminal.remote_terminal": "Удалённый кладовщик",
+  "item.createterminal.advanced_remote_terminal": "Улучшенный удалённый кладовщик",
+  "item.createterminal.creative_remote_terminal": "Творческий удалённый кладовщик",
+  "item.createterminal.memory_core": "Ядро памяти",
+
+  "tooltip.createterminal.bound": "Привязан к: %s, %s, %s",
+  "tooltip.createterminal.not_bound": "Отсутствует привязка",
+  "tooltip.createterminal.lost": "Потеря соединения с кладовщиком",
+  "tooltip.createterminal.limit": "Достигнут лимит в радиусе кладовщика",
+  "tooltip.createterminal.bound_existing": "Кладовщик уже привязан",
+  "tooltip.createterminal.bound_success": "Кладовщик привязан к %s",
+  "tooltip.createterminal.connected": "Подключён к: %s",
+  "tooltip.createterminal.header": "Кладовщики:",
+  "tooltip.createterminal.more": "Удерживайте [Shift] для %s сводки...",
+  "tooltip.createterminal.creative": "Неограниченное кол-во привязок (только для Творческого режима игры)",
+  "tooltip.createterminal.expand": "Максимальное кол-во кладовщиков: %s",
+  "tooltip.createterminal.ctrl_more": "Удерживайье [Alt] для сводки...",
+  "tooltip.createterminal.memory_core": "Увеличьте максимальное количество привязок на Улучшенном удалённом кладовщике на +10 привязок",
+  "tooltip.createterminal.style": "Нажмите [Shift+Ctrl] для смены стиля удалённого кладовщика",
+
+  "style.createterminal.header": "Стиль: %s",
+  "style.createterminal.blaze": "Всполох",
+  "style.createterminal.parrot": "Попугай",
+  "style.createterminal.cat": "Кошка",
+  "style.createterminal.cardboard": "Коробка",
+  "style.createterminal.end": "Энд",
+
+  "key.createterminal.createterminal": "Create Terminal",
+  "key.createterminal.open_terminal": "Открыть кладовщик"
+}
