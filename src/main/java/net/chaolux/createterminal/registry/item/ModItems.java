@@ -29,7 +29,7 @@ public class ModItems {
         ITEMS = DeferredRegister.create(Registries.ITEM, "createterminal");
 
         REMOTE_TERMINAL = registerWithTab("remote_terminal", () -> new RemoteTerminalItem(basicItem().stacksTo(1)));
-        ADVANCED_REMOTE_TERMINAL = registerWithTab("advanced_remote_terminal", () -> new AdvancedRemoteTerminalItem(basicItem().stacksTo(1)));
+        ADVANCED_REMOTE_TERMINAL = registerWithTab("advanced_remote_terminal", () -> new AdvancedRemoteTerminalItem(basicItem()));
         CREATIVE_REMOTE_TERMINAL = registerWithTab("creative_remote_terminal", () -> new CreativeRemoteTerminalItem(basicItem().rarity(Rarity.EPIC).stacksTo(1)));
         MEMORY_CORE = registerWithTab("memory_core", () -> new Item(basicItem()));
     }

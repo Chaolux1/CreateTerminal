@@ -2,9 +2,11 @@ package net.chaolux.createterminal.common.item;
 
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
+import net.chaolux.createterminal.common.item.data.RemoteBinding;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
 import net.chaolux.createterminal.common.network.SyncAdvancementPacket;
 import net.chaolux.createterminal.registry.network.ModNetwork;
+import net.chaolux.createterminal.registry.recipe.ModDataComponents;
 import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -39,13 +41,13 @@ import static net.chaolux.createterminal.common.utility.StyleUtils.styleBracket;
 
 public class AdvancedRemoteTerminalItem extends Item {
     public AdvancedRemoteTerminalItem(Properties p_41383_) {
-        super(p_41383_);
+        super(p_41383_.stacksTo(1));
     }
 
     private static final int MAX_TERMINALS=25;
     private static int getMaxTerminals(ItemStack stack) {
-        CompoundTag tag=getOrCreateCustomTag(stack);
-        return MAX_TERMINALS + tag.getInt("expand") * 10;
+        int expand=stack.getOrDefault(ModDataComponents.EXPAND.get(),0);
+        return MAX_TERMINALS + expand * 10;
     }
 
     @Override
@@ -55,60 +57,57 @@ public class AdvancedRemoteTerminalItem extends Item {
         BlockEntity be=level.getBlockEntity(pos);
         if(!(be instanceof StockTickerBlockEntity)) return InteractionResult.PASS;
         ItemStack stack=ctx.getItemInHand();
-        CompoundTag tag=getOrCreateCustomTag(stack);
-        ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
-        ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
-        if(!tag.contains("style")) {
-            setStyle(stack,"blaze");
-            tag=getOrCreateCustomTag(stack);
-            posList=tag.getList("terminals",Tag.TAG_LONG);
-            dimList=tag.getList("dims",Tag.TAG_STRING);
+        String style=stack.getOrDefault(ModDataComponents.STYLE.get(),"");
+        if(style.isEmpty()) {
+            stack.set(ModDataComponents.STYLE.get(),"blaze");
         }
-        long newPosLong=pos.asLong();
-        String newDim=level.dimension().location().toString();
-        for(int i=0; i<posList.size(); i++) {
-            long existing=((LongTag) posList.get(i)).getAsLong();
-            String dimStr=dimList.getString(i);
-            if(existing==newPosLong && dimStr.equals(newDim)) {
-                ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
-                return InteractionResult.FAIL;
+        RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
+        String dim=level.dimension().location().toString();
+        if(binding.contain(pos,dim)) {
+            Player player=ctx.getPlayer();
+            if(player !=null) {
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
             }
-        }
-        if(posList.size() >= getMaxTerminals(stack)) {
-            ctx.getLevel().playSound(null,pos,ModSounds.TERMINAL_LOST.get(),SoundSource.PLAYERS,1.0f,1.0f);
-            ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.limit"),true);
             return InteractionResult.FAIL;
         }
-        posList.add(LongTag.valueOf(newPosLong));
-        dimList.add(StringTag.valueOf(newDim));
-        tag.put("terminals",posList);
-        tag.put("dims",dimList);
-        setCustomTag(stack,tag);
-        ctx.getLevel().playSound(null,pos,ModSounds.TERMINAL_ON.get(),SoundSource.PLAYERS,1.0f,1.0f);
-        ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
-        return InteractionResult.SUCCESS;
+        if(binding.size() >= getMaxTerminals(stack)) {
+            level.playSound(null,pos,ModSounds.TERMINAL_LOST.get(), SoundSource.PLAYERS,1.0f,1.0f);
+            Player player=ctx.getPlayer();
+            if(player !=null) {
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.limit"),true);
+            }
+            return InteractionResult.FAIL;
+        }
+        stack.set(ModDataComponents.REMOTE_BINDING.get(),binding.add(pos,dim));
+        if(!level.isClientSide) {
+            level.playSound(null,pos,ModSounds.TERMINAL_ON.get(), SoundSource.PLAYERS,1.0f,1.0f);
+            Player player=ctx.getPlayer();
+            if(player !=null) {
+                player.getInventory().setChanged();
+                if(player.containerMenu !=null) {
+                    player.containerMenu.broadcastChanges();
+                }
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
+            }
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if(level.isClientSide) return InteractionResultHolder.pass(player.getItemInHand(hand));
         ItemStack stack=player.getItemInHand(hand);
-        CompoundTag tag=getCustomTag(stack);
-        if(tag==null || !tag.contains("terminals") || !tag.contains("dims")) {
+        RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
+        if(binding.size() == 0) {
             player.displayClientMessage(Component.translatable("tooltip.createterminal.not_bound"),true);
             return InteractionResultHolder.pass(stack);
         }
-        ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
-        ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
-
         List<BlockPos> validPos=new ArrayList<>();
-        for(int i=0; i < posList.size(); i++) {
-            long raw=((LongTag) posList.get(i)).getAsLong();
-            BlockPos pos=BlockPos.of(raw);
-            String dimStr=dimList.getString(i);
-            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION,ResourceLocation.parse(dimStr));
-            if(!level.dimension().equals(dimKey)) continue;
-            validPos.add(pos);
+        String currentDim=level.dimension().location().toString();
+        for(int i=0;i < binding.dims().size(); i++) {
+            if(currentDim.equals(binding.dims().get(i))) {
+                validPos.add(BlockPos.of(binding.terminals().get(i)));
+            }
         }
         validPos.sort(Comparator.comparingDouble(p -> player.blockPosition().distSqr(p)));
         BlockPos bestPos=null;
@@ -149,19 +148,17 @@ public class AdvancedRemoteTerminalItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag tooltipFlag) {
-        CompoundTag tag=getCustomTag(stack);
-        if(tag!=null && tag.contains("terminals")) {
-            ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
+        RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
+        if(binding.size() > 0) {
             tooltip.add(Component.translatable("tooltip.createterminal.header").withStyle(ChatFormatting.DARK_GRAY));
-            int show=0;
             boolean showAll= Screen.hasShiftDown();
-            for(int i=0; i<posList.size(); i++) {
+            int show=0;
+            for(int i=0; i < binding.size(); i++) {
                 if(show>=5 && !showAll) {
-                    tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.more",posList.size()-show).withStyle(ChatFormatting.DARK_GRAY)));
+                    tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.more",binding.size()-show).withStyle(ChatFormatting.DARK_GRAY)));
                     break;
                 }
-                long raw=((LongTag) posList.get(i)).getAsLong();
-                BlockPos pos=BlockPos.of(raw);
+                BlockPos pos=BlockPos.of(binding.terminals().get(i));
                 tooltip.add(Component.translatable("tooltip.createterminal.bound",pos.getX(),pos.getY(),pos.getZ()).withStyle(ChatFormatting.GRAY));
                 show++;
             }
@@ -179,23 +176,6 @@ public class AdvancedRemoteTerminalItem extends Item {
     }
 
     public static void setStyle(ItemStack stack, String style) {
-        CompoundTag styles=getOrCreateCustomTag(stack);
-        styles.putString("style",style);
-        setCustomTag(stack,styles);
-    }
-
-    private static CompoundTag getCustomTag(ItemStack stack) {
-        if(!stack.has(DataComponents.CUSTOM_DATA)) return null;
-        return stack.get(DataComponents.CUSTOM_DATA).copyTag();
-    }
-
-    private static CompoundTag getOrCreateCustomTag(ItemStack stack) {
-        CompoundTag tag=getCustomTag(stack);
-        if(tag == null) tag=new CompoundTag();
-        return tag;
-    }
-
-    private static void setCustomTag(ItemStack stack, CompoundTag tag) {
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        stack.set(ModDataComponents.STYLE.get(),style);
     }
 }

@@ -2,6 +2,7 @@ package net.chaolux.createterminal;
 
 import net.chaolux.createterminal.registry.item.ModItems;
 import net.chaolux.createterminal.registry.network.ModNetwork;
+import net.chaolux.createterminal.registry.recipe.ModDataComponents;
 import net.chaolux.createterminal.registry.recipe.ModRecipes;
 import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -20,7 +21,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(CreateTerminal.MOD_ID)
 public class CreateTerminal {
     public static final String MOD_ID = "createterminal";
@@ -28,11 +28,11 @@ public class CreateTerminal {
 
     public CreateTerminal(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
+        ModDataComponents.COMPONENT.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModSounds.SOUND_EVENTS.register(modEventBus);
         modEventBus.addListener(ModNetwork::register);
         ModRecipes.SERIALIZERS.register(modEventBus);
-        ModRecipes.TYPES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);

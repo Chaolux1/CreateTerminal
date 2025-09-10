@@ -9,6 +9,7 @@
     }
   ],
   "result": {
-    "item": "createterminal:advanced_remote_terminal"
+    "id": "createterminal:advanced_remote_terminal",
+    "count": 1
   }
 }

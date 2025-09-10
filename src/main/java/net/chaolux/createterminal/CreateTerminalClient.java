@@ -1,8 +1,10 @@
 package net.chaolux.createterminal;
 
 import net.chaolux.createterminal.client.ClientAdvancementCache;
+import net.chaolux.createterminal.common.item.data.RemoteBinding;
 import net.chaolux.createterminal.common.utility.StyleUtils;
 import net.chaolux.createterminal.registry.item.ModItems;
+import net.chaolux.createterminal.registry.recipe.ModDataComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.component.DataComponents;
@@ -37,12 +39,11 @@ public class CreateTerminalClient {
             });
 
             ItemProperties.register(ModItems.ADVANCED_REMOTE_TERMINAL.get(),ResourceLocation.fromNamespaceAndPath("createterminal","styles"),(stack,world,entity,seed)-> {
-                CompoundTag tag=getCustomTag(stack);
-                if(tag == null) return 0f;
-                boolean bound=tag.contains("terminals");
+                var binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(), RemoteBinding.EMPTY);
+                if(binding.size() == 0) return 0f;
 
-                if(!bound) return 0f;
-                String style=tag.getString("style");
+
+                String style=stack.getOrDefault(ModDataComponents.STYLE.get(),"");
                 if(style.equals("cardboard") && !StyleUtils.isMod("createcardboardthings")) return 1f;
                 if(style.equals("end") && !ClientAdvancementCache.hasDragonKill()) return 1f;
                 return switch (style) {
