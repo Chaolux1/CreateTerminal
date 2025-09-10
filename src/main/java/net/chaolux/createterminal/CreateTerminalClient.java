@@ -31,18 +31,13 @@ public class CreateTerminalClient {
     static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(()-> {
             ItemProperties.register(ModItems.CREATIVE_REMOTE_TERMINAL.get(),ResourceLocation.fromNamespaceAndPath("createterminal","bound"),(stack, world, entity, seed)-> {
-                CompoundTag tag=getCustomTag(stack);
-                if(tag !=null && tag.contains("terminals")) {
-                    return 1.0f;
-                }
-                return 0.0f;
+                RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
+                return binding.size() > 0 ? 1.0f : 0.0f;
             });
 
             ItemProperties.register(ModItems.ADVANCED_REMOTE_TERMINAL.get(),ResourceLocation.fromNamespaceAndPath("createterminal","styles"),(stack,world,entity,seed)-> {
-                var binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(), RemoteBinding.EMPTY);
+                RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(), RemoteBinding.EMPTY);
                 if(binding.size() == 0) return 0f;
-
-
                 String style=stack.getOrDefault(ModDataComponents.STYLE.get(),"");
                 if(style.equals("cardboard") && !StyleUtils.isMod("createcardboardthings")) return 1f;
                 if(style.equals("end") && !ClientAdvancementCache.hasDragonKill()) return 1f;
@@ -58,10 +53,8 @@ public class CreateTerminalClient {
 
             ItemProperties.register(ModItems.REMOTE_TERMINAL.get(),ResourceLocation.fromNamespaceAndPath("createterminal","styles"),(stack,world,entity,seed)-> {
                 CompoundTag tag=getCustomTag(stack);
-                if(tag == null) return 0f;
-                boolean bound=tag.contains("boundPos") && tag.contains("boundDim");
-                if(!bound) return 0f;
-                String style=tag.getString("style");
+                if(tag == null || !tag.contains("boundPos") || !tag.contains("boundDim")) return 0f;
+                String style=stack.getOrDefault(ModDataComponents.STYLE.get(),"");
                 if(style.equals("cardboard") && !StyleUtils.isMod("createcardboardthings")) return 1f;
                 if(style.equals("end") && !ClientAdvancementCache.hasDragonKill()) return 1f;
                 return switch (style) {

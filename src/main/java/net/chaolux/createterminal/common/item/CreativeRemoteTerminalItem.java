@@ -2,7 +2,10 @@ package net.chaolux.createterminal.common.item;
 
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
+import net.chaolux.createterminal.common.item.data.RemoteBinding;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
+import net.chaolux.createterminal.registry.recipe.ModDataComponents;
+import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -15,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -26,6 +30,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static net.chaolux.createterminal.common.utility.StyleUtils.styleBracket;
@@ -42,53 +48,59 @@ public class CreativeRemoteTerminalItem extends Item {
         BlockEntity be=level.getBlockEntity(pos);
         if(!(be instanceof StockTickerBlockEntity)) return InteractionResult.PASS;
         ItemStack stack=ctx.getItemInHand();
-        CompoundTag tag=getOrCreateCustomTag(stack);
-        ListTag posList=tag.getList("terminals", Tag.TAG_LONG);
-        ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
-        long newPosLong=pos.asLong();
-        String newDim=level.dimension().location().toString();
-        for(int i=0; i<posList.size(); i++) {
-            long existing=((LongTag) posList.get(i)).getAsLong();
-            String dimStr=dimList.getString(i);
-            if(existing==newPosLong && dimStr.equals(newDim)) {
-                ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
-                return InteractionResult.FAIL;
+        String style=stack.getOrDefault(ModDataComponents.STYLE.get(),"");
+        if(style.isEmpty()) {
+            stack.set(ModDataComponents.STYLE.get(),"blaze");
+        }
+        RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
+        String dim=level.dimension().location().toString();
+        if(binding.contain(pos,dim)) {
+            Player player=ctx.getPlayer();
+            if(player !=null) {
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
+            }
+            return InteractionResult.FAIL;
+        }
+        stack.set(ModDataComponents.REMOTE_BINDING.get(),binding.add(pos,dim));
+        if(!level.isClientSide) {
+            level.playSound(null,pos, ModSounds.TERMINAL_ON.get(), SoundSource.PLAYERS,1.0f,1.0f);
+            Player player=ctx.getPlayer();
+            if(player !=null) {
+                player.getInventory().setChanged();
+                if(player.containerMenu !=null) {
+                    player.containerMenu.broadcastChanges();
+                }
+                player.displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
             }
         }
-        posList.add(LongTag.valueOf(newPosLong));
-        dimList.add(StringTag.valueOf(newDim));
-        tag.put("terminals",posList);
-        tag.put("dims",dimList);
-        setCustomTag(stack,tag);
-        ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
-        return InteractionResult.SUCCESS;
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if(level.isClientSide) return InteractionResultHolder.pass(player.getItemInHand(hand));
         ItemStack stack=player.getItemInHand(hand);
-        CompoundTag tag=getCustomTag(stack);
-        if(tag==null || !tag.contains("terminals") || !tag.contains("dims")) {
+        RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
+        if(binding.size() == 0) {
             player.displayClientMessage(Component.translatable("tooltip.createterminal.not_bound"),true);
             return InteractionResultHolder.pass(stack);
         }
-        ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
-        ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
-        BlockPos bestPos=null;
-        double bestDist=Double.MAX_VALUE;
-        for(int i=0; i<posList.size(); i++) {
-            long raw=((LongTag) posList.get(i)).getAsLong();
-            BlockPos pos=BlockPos.of(raw);
-            String dimStr=dimList.getString(i);
-            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(dimStr));
-            if(!level.dimension().equals(dimKey)) continue;
-            if(!level.hasChunkAt(pos)) continue;
-            double dist=player.blockPosition().distSqr(pos);
-            if(dist<bestDist) {
-                bestDist=dist;
-                bestPos=pos;
+        String currentDim=level.dimension().location().toString();
+        List<BlockPos> candidates=new ArrayList<>();
+        for(int i=0; i < binding.size(); i++) {
+            if(currentDim.equals(binding.dims().get(i))) {
+                candidates.add(BlockPos.of(binding.terminals().get(i)));
             }
+        }
+        candidates.sort(Comparator.comparingDouble(p -> player.blockPosition().distSqr(p)));
+        BlockPos bestPos=null;
+        for(BlockPos pos : candidates) {
+            if(!level.hasChunkAt(pos)) continue;
+            BlockEntity be=level.getBlockEntity(pos);
+            if(!(be instanceof StockTickerBlockEntity)) continue;
+            if(!level.getBlockState(pos).is(BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("create","stock_ticker")))) continue;
+            bestPos=pos;
+            break;
         }
         if(bestPos==null) {
             player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
@@ -115,19 +127,17 @@ public class CreativeRemoteTerminalItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag tooltipFlag) {
         tooltip.add(Component.translatable("tooltip.createterminal.creative").withStyle(ChatFormatting.DARK_PURPLE));
-        CompoundTag tag=getCustomTag(stack);
-        if(tag!=null && tag.contains("terminals")) {
-            ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
+        RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
+        if(binding.size() > 0) {
             tooltip.add(Component.translatable("tooltip.createterminal.header").withStyle(ChatFormatting.GRAY));
             int show=0;
             boolean showAll= Screen.hasShiftDown();
-            for(int i=0; i<posList.size(); i++) {
+            for(int i=0; i<binding.size(); i++) {
                 if(show>=5 && !showAll) {
-                    tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.more",posList.size()-show).withStyle(ChatFormatting.DARK_GRAY)));
+                    tooltip.add(styleBracket(Component.translatable("tooltip.createterminal.more",binding.size()-show).withStyle(ChatFormatting.DARK_GRAY)));
                     break;
                 }
-                long raw=((LongTag) posList.get(i)).getAsLong();
-                BlockPos pos=BlockPos.of(raw);
+                BlockPos pos=BlockPos.of(binding.terminals().get(i));
                 tooltip.add(Component.translatable("tooltip.createterminal.bound",pos.getX(),pos.getY(),pos.getZ()).withStyle(ChatFormatting.GRAY));
                 show++;
             }

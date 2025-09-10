@@ -4,10 +4,10 @@
     "layer0": "createterminal:item/remote_terminal_off"
   },
     "overrides": [
-      {"predicate": {"styles": 1},"model": "createterminal:item/remote_terminal_on_blaze"},
-      {"predicate": {"styles": 2},"model": "createterminal:item/remote_terminal_on_parrot"},
-      {"predicate": {"styles": 3},"model": "createterminal:item/remote_terminal_on_cat"},
-      {"predicate": {"styles": 4},"model": "createterminal:item/remote_terminal_on_cardboard"},
-      {"predicate": {"styles": 5},"model": "createterminal:item/remote_terminal_on_end"}
+      {"predicate": {"createterminal:styles": 1.0},"model": "createterminal:item/remote_terminal_on_blaze"},
+      {"predicate": {"createterminal:styles": 2.0},"model": "createterminal:item/remote_terminal_on_parrot"},
+      {"predicate": {"createterminal:styles": 3.0},"model": "createterminal:item/remote_terminal_on_cat"},
+      {"predicate": {"createterminal:styles": 4.0},"model": "createterminal:item/remote_terminal_on_cardboard"},
+      {"predicate": {"createterminal:styles": 5.0},"model": "createterminal:item/remote_terminal_on_end"}
     ]
 }

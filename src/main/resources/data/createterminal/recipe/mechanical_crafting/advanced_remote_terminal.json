@@ -1,6 +1,7 @@
 {
   "type": "create:mechanical_crafting",
-  "acceptMirrored": false,
+  "accept_mirrored": false,
+  "category": "misc",
   "key": {
     "A": {
       "item": "create:sturdy_sheet"
@@ -15,6 +16,8 @@
     " A "
   ],
   "result": {
-    "item": "createterminal:advanced_remote_terminal"
-  }
+    "count": 1,
+    "id": "createterminal:advanced_remote_terminal"
+  },
+  "show_notification": false
 }

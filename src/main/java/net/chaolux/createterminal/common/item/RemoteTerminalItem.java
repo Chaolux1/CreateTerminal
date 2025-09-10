@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
 import net.chaolux.createterminal.common.network.SyncAdvancementPacket;
 import net.chaolux.createterminal.registry.network.ModNetwork;
+import net.chaolux.createterminal.registry.recipe.ModDataComponents;
 import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -51,8 +52,9 @@ public class RemoteTerminalItem extends Item {
         tag.putLong("boundPos",pos.asLong());
         tag.putString("boundDim",level.dimension().location().toString());
         setCustomTag(stack,tag);
-        if(!tag.contains("style")) {
-            setStyle(stack,"blaze");
+        String style=stack.getOrDefault(ModDataComponents.STYLE.get(),"");
+        if(style.isEmpty()) {
+            stack.set(ModDataComponents.STYLE.get(),"blaze");
         }
         if(!level.isClientSide) {
             ctx.getPlayer().displayClientMessage(Component.translatable("tooltip.createterminal.bound",pos.getX(),pos.getY(),pos.getZ()),true);
@@ -89,10 +91,6 @@ public class RemoteTerminalItem extends Item {
             if(menuType==null) {
                 return InteractionResultHolder.fail(stack);
             }
-//            FriendlyByteBuf menuBuf=new FriendlyByteBuf(Unpooled.buffer());
-//            menuBuf.writeBoolean(false);
-//            menuBuf.writeBoolean(false);
-//            menuBuf.writeBlockPos(pos);
             MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(menuType, id,inv,stockTickerBlockEntity),Component.literal("Stock Keeper"));
             ((ServerPlayer) player).openMenu(provider,data-> {
                 data.writeBoolean(false);
@@ -117,9 +115,7 @@ public class RemoteTerminalItem extends Item {
     }
 
     public static void setStyle(ItemStack stack, String style) {
-        CompoundTag styles=getOrCreateCustomTag(stack);
-        styles.putString("style",style);
-        setCustomTag(stack,styles);
+        stack.set(ModDataComponents.STYLE.get(),style);
     }
 
     private static CompoundTag getCustomTag(ItemStack stack) {

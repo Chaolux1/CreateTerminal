@@ -21,7 +21,8 @@
     " # "
   ],
   "result": {
-    "item": "createterminal:remote_terminal"
+    "count": 1,
+    "id": "createterminal:remote_terminal"
   },
   "show_notification": true
 }
