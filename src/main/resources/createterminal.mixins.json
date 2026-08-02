@@ -7,7 +7,9 @@
   "mixins": [
     "BlockEntityConfigurationPacketMixin"
   ],
-  "client": [],
+  "client": [
+    "LogisticallyLinkedClientHandlerMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
