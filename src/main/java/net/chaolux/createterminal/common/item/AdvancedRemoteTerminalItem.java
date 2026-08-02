@@ -2,6 +2,7 @@ package net.chaolux.createterminal.common.item;
 
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
+import net.chaolux.createterminal.Config;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
 import net.chaolux.createterminal.common.network.SyncAdvancementPacket;
 import net.chaolux.createterminal.registry.network.ModNetwork;
@@ -15,6 +16,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
@@ -24,6 +26,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkHooks;
@@ -52,7 +55,11 @@ public class AdvancedRemoteTerminalItem extends Item {
         Level level=ctx.getLevel();
         BlockPos pos=ctx.getClickedPos();
         BlockEntity be=level.getBlockEntity(pos);
-        if(!(be instanceof StockTickerBlockEntity)) return InteractionResult.PASS;
+        Player player=ctx.getPlayer();
+        if(!(be instanceof StockTickerBlockEntity stockTickerBlockEntity)) return InteractionResult.PASS;
+        if(player == null) return InteractionResult.PASS;
+        if(level.isClientSide) return InteractionResult.SUCCESS;
+        if(!stockTickerBlockEntity.behaviour.mayInteractMessage(player)) return InteractionResult.FAIL;
         ItemStack stack=ctx.getItemInHand();
         CompoundTag tag=stack.getOrCreateTag();
         ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
@@ -62,7 +69,8 @@ public class AdvancedRemoteTerminalItem extends Item {
         }
         long newPosLong=pos.asLong();
         String newDim=level.dimension().location().toString();
-        for(int i=0; i<posList.size(); i++) {
+        int intList=Math.min(posList.size(),dimList.size());
+        for(int i=0; i<intList; i++) {
             long existing=((LongTag) posList.get(i)).getAsLong();
             String dimStr=dimList.getString(i);
             if(existing==newPosLong && dimStr.equals(newDim)) {
@@ -97,44 +105,45 @@ public class AdvancedRemoteTerminalItem extends Item {
         }
         ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
         ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
-
+        int intList=Math.min(posList.size(),dimList.size());
+        int maxRange= Config.getAdvancedRemoteTerminalRange();
         List<BlockPos> validPos=new ArrayList<>();
-        for(int i=0; i < posList.size(); i++) {
+        for(int i=0; i < intList; i++) {
             long raw=((LongTag) posList.get(i)).getAsLong();
             BlockPos pos=BlockPos.of(raw);
-            String dimStr=dimList.getString(i);
-            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION,new ResourceLocation(dimStr));
+            ResourceLocation dimStr=ResourceLocation.tryParse(dimList.getString(i));
+            if(dimStr == null) continue;
+            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION,dimStr);
             if(!level.dimension().equals(dimKey)) continue;
+            if(!isRange(player,pos,maxRange)) continue;
             validPos.add(pos);
         }
         validPos.sort(Comparator.comparingDouble(p -> player.blockPosition().distSqr(p)));
         BlockPos bestPos=null;
+        StockTickerBlockEntity bestStockTicker=null;
+        ServerPlayer serverPlayer=(ServerPlayer) player;
         for(BlockPos pos:validPos) {
             if(!level.hasChunkAt(pos)) continue;
             BlockEntity be=level.getBlockEntity(pos);
-            if(!(be instanceof StockTickerBlockEntity)) continue;
-            if(!level.getBlockState(pos).is(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("create","stock_ticker")))) {
-                continue;
-            }
+            if(!(be instanceof StockTickerBlockEntity stockTickerBlockEntity)) continue;
+            if(!level.getBlockState(pos).is(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("create","stock_ticker")))) continue;
             bestPos=pos;
+            bestStockTicker=stockTickerBlockEntity;
             break;
         }
-        if(bestPos == null) {
+        if(bestPos == null || bestStockTicker == null) {
             player.level().playSound(null,player.blockPosition(), ModSounds.TERMINAL_LOST.get(), SoundSource.PLAYERS,1.0f,1.0f);
             player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
             return InteractionResultHolder.fail(stack);
         }
+        if(!bestStockTicker.behaviour.mayInteractMessage(player)) return InteractionResultHolder.fail(stack);
         boolean unlock=hasAdvancement((ServerPlayer) player,new ResourceLocation("minecraft:end/kill_dragon"));
         ModNetwork.sendToClient((ServerPlayer) player,new SyncAdvancementPacket(unlock));
         MenuType<?> menuType= ForgeRegistries.MENU_TYPES.getValue(new ResourceLocation("create","stock_keeper_request"));
         if(menuType==null) return InteractionResultHolder.fail(stack);
-        BlockEntity blockEntity=level.getBlockEntity(bestPos);
-        if(!(blockEntity instanceof StockTickerBlockEntity stock)) {
-            player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
-            return InteractionResultHolder.fail(stack);
-        }
         final MenuType<?> finalMenuType=menuType;
-        MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,stock),Component.literal("Stock Keeper"));
+        StockTickerBlockEntity stock=bestStockTicker;
+        MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,stock,maxRange),Component.literal("Stock Keeper"));
         BlockPos finalBestPos=bestPos;
         NetworkHooks.openScreen((ServerPlayer) player,provider,data-> {
             data.writeBoolean(false);
@@ -179,5 +188,9 @@ public class AdvancedRemoteTerminalItem extends Item {
     public static void setStyle(ItemStack stack, String style) {
         CompoundTag styles=stack.getOrCreateTag();
         styles.putString("style",style);
+    }
+
+    private static boolean isRange(Player player,BlockPos blockPos,int maxRange) {
+        return maxRange == Integer.MAX_VALUE || blockPos.closerThan(player.blockPosition(),maxRange);
     }
 }

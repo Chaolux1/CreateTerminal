@@ -2,6 +2,7 @@ package net.chaolux.createterminal.common.item;
 
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
+import net.chaolux.createterminal.Config;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
 import net.chaolux.createterminal.registry.sound.ModSounds;
 import net.minecraft.ChatFormatting;
@@ -13,6 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
@@ -22,12 +24,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.Map;
 
 import static net.chaolux.createterminal.common.utility.StyleUtils.styleBracket;
 
@@ -41,14 +45,19 @@ public class CreativeRemoteTerminalItem extends Item {
         Level level=ctx.getLevel();
         BlockPos pos=ctx.getClickedPos();
         BlockEntity be=level.getBlockEntity(pos);
-        if(!(be instanceof StockTickerBlockEntity)) return InteractionResult.PASS;
+        Player player=ctx.getPlayer();
+        if(!(be instanceof StockTickerBlockEntity stockTickerBlockEntity)) return InteractionResult.PASS;
+        if(player == null) return InteractionResult.PASS;
+        if(level.isClientSide) return InteractionResult.SUCCESS;
+        if(!stockTickerBlockEntity.behaviour.mayInteractMessage(player)) return InteractionResult.FAIL;
         ItemStack stack=ctx.getItemInHand();
         CompoundTag tag=stack.getOrCreateTag();
         ListTag posList=tag.getList("terminals", Tag.TAG_LONG);
         ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
         long newPosLong=pos.asLong();
         String newDim=level.dimension().location().toString();
-        for(int i=0; i<posList.size(); i++) {
+        int intList= Math.min(posList.size(),dimList.size());
+        for(int i=0; i<intList; i++) {
             long existing=((LongTag) posList.get(i)).getAsLong();
             String dimStr=dimList.getString(i);
             if(existing==newPosLong && dimStr.equals(newDim)) {
@@ -78,35 +87,39 @@ public class CreativeRemoteTerminalItem extends Item {
         }
         ListTag posList=tag.getList("terminals",Tag.TAG_LONG);
         ListTag dimList=tag.getList("dims",Tag.TAG_STRING);
+        int intList=Math.min(posList.size(),dimList.size());
         BlockPos bestPos=null;
+        StockTickerBlockEntity bestStockTicker=null;
         double bestDist=Double.MAX_VALUE;
-        for(int i=0; i<posList.size(); i++) {
+        ServerPlayer serverPlayer=(ServerPlayer) player;
+        for(int i=0; i<intList; i++) {
             long raw=((LongTag) posList.get(i)).getAsLong();
             BlockPos pos=BlockPos.of(raw);
-            String dimStr=dimList.getString(i);
-            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimStr));
+            ResourceLocation dimStr=ResourceLocation.tryParse(dimList.getString(i));
+            if(dimStr == null) continue;
+            ResourceKey<Level> dimKey=ResourceKey.create(Registries.DIMENSION,dimStr);
             if(!level.dimension().equals(dimKey)) continue;
             if(!level.hasChunkAt(pos)) continue;
+            BlockEntity blockEntity=level.getBlockEntity(pos);
+            if(!(blockEntity instanceof StockTickerBlockEntity stockTickerBlockEntity)) continue;
             double dist=player.blockPosition().distSqr(pos);
             if(dist<bestDist) {
                 bestDist=dist;
                 bestPos=pos;
+                bestStockTicker=stockTickerBlockEntity;
             }
         }
-        if(bestPos==null) {
+        if(bestPos==null || bestStockTicker == null) {
             player.level().playSound(null,player.blockPosition(), ModSounds.TERMINAL_LOST.get(), SoundSource.PLAYERS,1.0f,1.0f);
             player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
             return InteractionResultHolder.fail(stack);
         }
+        if(!bestStockTicker.behaviour.mayInteractMessage(player)) return InteractionResultHolder.fail(stack);
         MenuType<?> menuType= ForgeRegistries.MENU_TYPES.getValue(new ResourceLocation("create","stock_keeper_request"));
         if(menuType==null) return InteractionResultHolder.fail(stack);
-        BlockEntity blockEntity=level.getBlockEntity(bestPos);
-        if(!(blockEntity instanceof StockTickerBlockEntity stock)) {
-            player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
-            return InteractionResultHolder.fail(stack);
-        }
         final MenuType<?> finalMenuType=menuType;
-        MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,stock),Component.literal("Stock Keeper"));
+        StockTickerBlockEntity stock=bestStockTicker;
+        MenuProvider provider=new SimpleMenuProvider((id,inv,ply)->new RemoteStockKeeperMenu(finalMenuType,id,inv,stock, Config.CREATIVE_TERMINAL_RANGE),Component.literal("Stock Keeper"));
         BlockPos finalBestPos=bestPos;
         NetworkHooks.openScreen((ServerPlayer) player,provider,data-> {
             data.writeBoolean(false);

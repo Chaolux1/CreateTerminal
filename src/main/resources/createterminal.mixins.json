@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "net.chaolux.createterminal.common.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "createterminal.refmap.json",
+  "mixins": [
+    "BlockEntityConfigurationPacketMixin"
+  ],
+  "client": [],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
