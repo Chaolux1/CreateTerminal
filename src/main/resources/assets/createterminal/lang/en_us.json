@@ -27,5 +27,17 @@
   "style.createterminal.end": "End",
 
   "key.createterminal.createterminal": "Create Terminal",
-  "key.createterminal.open_terminal": "Open Terminal"
+  "key.createterminal.open_terminal": "Open Terminal",
+
+  "jei.createterminal.terminal_mixing": "Terminal Mixing",
+  "jei.createterminal.expand.input": "Keeps the terminals existing data",
+  "jei.createterminal.expand.core": "Adds 10 terminal slots",
+  "jei.createterminal.expand.output": "Expand terminal",
+  "jei.createterminal.expand.level": "Expansion level: %s (+%s slots)",
+  "jei.createterminal.clear.input": "Terminal with stored data",
+  "jei.createterminal.clear.water": "Requires 1000 mB of Water",
+  "jei.createterminal.clear.output": "All terminal data is removed",
+  "jei.createterminal.clear.first_line": "Clears bindings expansions and style",
+  "jei.createterminal.clear.second_line": "Returns clean Advanced Remote Terminal"
+
 }
