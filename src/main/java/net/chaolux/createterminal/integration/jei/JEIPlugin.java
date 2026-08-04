@@ -12,6 +12,8 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import net.chaolux.createterminal.CreateTerminal;
 import net.chaolux.createterminal.integration.jei.category.TerminalJEIRecipe;
 import net.chaolux.createterminal.integration.jei.category.TerminalRecipeCategory;
+import net.chaolux.createterminal.registry.item.ModItems;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -43,6 +45,7 @@ public class JEIPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration iRecipeRegistration) {
         iRecipeRegistration.addRecipes(TerminalRecipeCategory.RECIPE_TYPE, TerminalJEIRecipe.list());
+        iRecipeRegistration.addItemStackInfo(new ItemStack(ModItems.MUSIC_DISC_TERMINAL_PROTOCOL.get()), Component.translatable("jei.createterminal.music_disc_terminal_protocol.desc"),Component.translatable("jei.createterminal.music_disc_terminal_protocol.progress"),Component.translatable("jei.createterminal.music_disc_terminal_protocol.defeat"));
     }
 
     @Override
@@ -63,7 +66,7 @@ public class JEIPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration iRecipeCatalystRegistration) {
         Block mixer= ForgeRegistries.BLOCKS.getValue(new ResourceLocation("create","mechanical_mixer"));
-        Block basin=ForgeRegistries.BLOCKS.getValue(new ResourceLocation("crate","basin"));
+        Block basin=ForgeRegistries.BLOCKS.getValue(new ResourceLocation("create","basin"));
         if(mixer != null) iRecipeCatalystRegistration.addRecipeCatalyst(new ItemStack(mixer), TerminalRecipeCategory.RECIPE_TYPE);
         if(basin != null) iRecipeCatalystRegistration.addRecipeCatalyst(new ItemStack(basin), TerminalRecipeCategory.RECIPE_TYPE);
     }

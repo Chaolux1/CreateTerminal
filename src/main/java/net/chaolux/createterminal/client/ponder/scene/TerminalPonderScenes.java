@@ -166,8 +166,6 @@ public class TerminalPonderScenes {
         Vec3 blue=inside.add(0.38,1.45,-0.08);
         Vec3 firstVec3=sceneBuildingUtil.vector().topOf(first).add(0,0.2,0);
         Vec3 secondVec3=sceneBuildingUtil.vector().topOf(second).add(0,0.2,0);
-//        Vec3 green=vec3.add(0.7,0.4,-0.6);
-//        Vec3 blue=vec3.add(-0.7,0.65,-0.3);
         createSceneBuilder.overlay().showLine(PonderPalette.GREEN,firstVec3,green,100);
         createSceneBuilder.overlay().showLine(PonderPalette.BLUE,secondVec3,blue,100);
         createSceneBuilder.overlay().showOutline(PonderPalette.GREEN, "advanced_nearest_ticker", firstTicker, 100);

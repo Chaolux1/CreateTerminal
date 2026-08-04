@@ -6,5 +6,14 @@
   "on": {
     "category": "player",
     "sounds": ["createterminal:on"]
+  },
+  "music_disc_terminal_protocol": {
+    "subtitle": "subtitles.createterminal.music_disc_terminal_protocol",
+    "sounds": [
+      {
+        "name": "createterminal:music_disc/terminal_protocol",
+        "stream": true
+      }
+    ]
   }
 }

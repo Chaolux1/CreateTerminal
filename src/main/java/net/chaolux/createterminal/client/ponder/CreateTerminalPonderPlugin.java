@@ -22,5 +22,6 @@ public class CreateTerminalPonderPlugin implements PonderPlugin {
         PonderSceneRegistrationHelper<Item> itemPonderSceneRegistrationHelper=ponderSceneRegistrationHelper.withKeyFunction(ForgeRegistries.ITEMS::getKey);
         itemPonderSceneRegistrationHelper.addStoryBoard(ModItems.REMOTE_TERMINAL.get(),STOCK_TICKER, TerminalPonderScenes::remoteTerminal);
         itemPonderSceneRegistrationHelper.addStoryBoard(ModItems.ADVANCED_REMOTE_TERMINAL.get(),STOCK_TICKER,TerminalPonderScenes::advancedRemoteTerminal);
+        itemPonderSceneRegistrationHelper.addStoryBoard(ModItems.CREATIVE_REMOTE_TERMINAL.get(),STOCK_TICKER,TerminalPonderScenes::advancedRemoteTerminal);
     }
 }
