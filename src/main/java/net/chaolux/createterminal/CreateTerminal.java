@@ -2,11 +2,13 @@ package net.chaolux.createterminal;
 
 import com.mojang.logging.LogUtils;
 import net.chaolux.createterminal.client.ClientAdvancementCache;
+import net.chaolux.createterminal.client.ponder.CreateTerminalPonderPlugin;
 import net.chaolux.createterminal.common.utility.StyleUtils;
 import net.chaolux.createterminal.registry.item.ModItems;
 import net.chaolux.createterminal.registry.network.ModNetwork;
 import net.chaolux.createterminal.registry.recipe.ModRecipes;
 import net.chaolux.createterminal.registry.sound.ModSounds;
+import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -74,6 +76,8 @@ public class CreateTerminal
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
+            PonderIndex.addPlugin(new CreateTerminalPonderPlugin());
+
             event.enqueueWork(()-> {
                 ItemProperties.register(ModItems.CREATIVE_REMOTE_TERMINAL.get(),new ResourceLocation("bound"),(stack,world,entity,seed)-> {
                     if(stack.hasTag() && stack.getTag().contains("terminals"))

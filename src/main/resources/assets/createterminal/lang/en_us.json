@@ -38,6 +38,25 @@
   "jei.createterminal.clear.water": "Requires 1000 mB of Water",
   "jei.createterminal.clear.output": "All terminal data is removed",
   "jei.createterminal.clear.first_line": "Clears bindings expansions and style",
-  "jei.createterminal.clear.second_line": "Returns clean Advanced Remote Terminal"
+  "jei.createterminal.clear.second_line": "Returns clean Advanced Remote Terminal",
+
+  "createterminal.ponder.remote_terminal.header": "Using a Remote Terminal",
+  "createterminal.ponder.advanced_remote_terminal.header": "Using a Advanced Remote Terminal",
+  "createterminal.ponder.shared.remote_terminal.first_bind": "Remote Terminal bind to one Stock Ticker.",
+  "createterminal.ponder.shared.remote_terminal.bind": "Right click Stock Ticker to bind the terminal.",
+  "createterminal.ponder.shared.remote_terminal.use": "Right click in an air to open its request screen.",
+  "createterminal.ponder.shared.remote_terminal.in_range": "Inside configured range, connection succeeds.",
+  "createterminal.ponder.shared.remote_terminal.out_range": "Outside a range, it cannot connect. Default: 20 blocks.",
+  "createterminal.ponder.shared.remote_terminal.dimension": "Player and Stock Ticker must be in a same dimension.",
+  "createterminal.ponder.shared.remote_terminal.load": "Stock Ticker and its logistics network must be load.",
+  "createterminal.ponder.shared.remote_terminal.no_chunk_loading": "Remote Terminals do not load chunks by themselves.",
+  "createterminal.ponder.shared.advanced_remote_terminal.multiple": "An Advanced Remote Terminal can store several Stock Ticker bindings.",
+  "createterminal.ponder.shared.advanced_remote_terminal.bind": "Right click each Stock Ticker to add it to the terminal.",
+  "createterminal.ponder.shared.advanced_remote_terminal.nearest": "When use, it connects to a nearest valid binding.",
+  "createterminal.ponder.shared.advanced_remote_terminal.range": "Green arc represents its configured range. Default: 20 blocks.",
+  "createterminal.ponder.shared.advanced_remote_terminal.out_range": "Bindings outside a configured range are ignored.",
+  "createterminal.ponder.shared.advanced_remote_terminal.dimension": "Only binding in a current dimension can be used.",
+  "createterminal.ponder.shared.advanced_remote_terminal.load": "Selected Stock Ticker and its logistics network must be load.",
+  "createterminal.ponder.shared.advanced_remote_terminal.no_chunk_loading": "Advanced Remote Terminals do not load chunks by themselves."
 
 }
