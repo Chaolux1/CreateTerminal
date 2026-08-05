@@ -33,7 +33,7 @@
   "key.createterminal.createterminal": "Create Terminal",
   "key.createterminal.open_terminal": "Open Terminal",
 
-  "jei.createterminal.terminal_mixing": "Terminal Mixing",
+  "jei.createterminal.terminal_modification": "Terminal Modification",
   "jei.createterminal.expand.input": "Keeps the terminals existing data",
   "jei.createterminal.expand.core": "Adds 10 terminal slots",
   "jei.createterminal.expand.output": "Expand terminal",

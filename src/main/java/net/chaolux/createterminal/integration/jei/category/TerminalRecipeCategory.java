@@ -44,7 +44,7 @@ public class TerminalRecipeCategory implements IRecipeCategory<TerminalJEIRecipe
 
     @Override
     public Component getTitle() {
-        return Component.translatable("jei.createterminal.terminal_mixing");
+        return Component.translatable("jei.createterminal.terminal_modification");
     }
 
     @Override
