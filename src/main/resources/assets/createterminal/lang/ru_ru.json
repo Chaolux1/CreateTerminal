@@ -1,8 +1,12 @@
 {
   "item.createterminal.remote_terminal": "Удалённый кладовщик",
-  "item.createterminal.advanced_remote_terminal": "Улучшенный удалённый кладовщик",
+  "item.createterminal.advanced_remote_terminal": "Продвинутый удалённый кладовщик",
   "item.createterminal.creative_remote_terminal": "Творческий удалённый кладовщик",
   "item.createterminal.memory_core": "Ядро памяти",
+  "item.createterminal.music_disc_terminal_protocol": "Пластинка",
+  "item.createterminal.music_disc_terminal_protocol.desc": "Chaolux - Terminal Protocol",
+  
+   "subtitles.createterminal.music_disc_terminal_protocol": "Пластинка играет",
 
   "tooltip.createterminal.bound": "Привязан к: %s, %s, %s",
   "tooltip.createterminal.not_bound": "Отсутствует привязка",
@@ -15,7 +19,7 @@
   "tooltip.createterminal.more": "Удерживайте [Shift] для %s сводки...",
   "tooltip.createterminal.creative": "Неограниченное кол-во привязок (только для Творческого режима игры)",
   "tooltip.createterminal.expand": "Максимальное кол-во кладовщиков: %s",
-  "tooltip.createterminal.ctrl_more": "Удерживайье [Alt] для сводки...",
+  "tooltip.createterminal.ctrl_more": "Удерживайте [Alt] для сводки...",
   "tooltip.createterminal.memory_core": "Увеличьте максимальное количество привязок на Улучшенном удалённом кладовщике на +10 привязок",
   "tooltip.createterminal.style": "Нажмите [Shift+Ctrl] для смены стиля удалённого кладовщика",
 
@@ -27,5 +31,38 @@
   "style.createterminal.end": "Энд",
 
   "key.createterminal.createterminal": "Create Terminal",
-  "key.createterminal.open_terminal": "Открыть кладовщик"
+  "key.createterminal.open_terminal": "Открыть кладовщик",
+  
+  "jei.createterminal.terminal_modification": "Модификация кладовщика",
+  "jei.createterminal.expand.input": "Сохраняет имеющуюся информацию кладовщика",
+  "jei.createterminal.expand.core": "Добавляет 10 слотов для кладовщика",
+  "jei.createterminal.expand.output": "Расширение кладовщика",
+  "jei.createterminal.expand.level": "Уровень расширения: %s (+%s слотов)",
+  "jei.createterminal.clear.input": "Кладовщик с сохранёнными данными",
+  "jei.createterminal.clear.water": "Требуется 1000 мВ воды",
+  "jei.createterminal.clear.output": "Все данные кладовщика были убраны",
+  "jei.createterminal.clear.first_line": "Снимает подключения и выбранный стиль",
+  "jei.createterminal.clear.second_line": "Возвращает чистый Продвинутый удалённый кладовщик",
+  "jei.createterminal.music_disc_terminal_protocol.desc": "Terminal Protocol - секретная пластника, что выпадает с Эндер-дракона при выполнении определённого порядка действий.",
+  "jei.createterminal.music_disc_terminal_protocol.progress": "Игрок должен выполнить данный порядок действий в точности: убить Всполоха, убить Попугая, убить Кошку, сломать коробку из Create, и после этого убить Эндер-дракона.",
+  "jei.createterminal.music_disc_terminal_protocol.defeat": "Убийство другого моба или выполнения какого-то дейсвия вне порядка полностью сбросит порядок. Подбор коробки не засчитывается, она должна быть именно сломана.",
+
+  "createterminal.ponder.remote_terminal.header": "Использованние удалённого кладовщика",
+  "createterminal.ponder.advanced_remote_terminal.header": "Использованние продвинутого удалённого кладовщика",
+  "createterminal.ponder.shared.remote_terminal.first_bind": "Удалённый кладовщик может быть подключён к одному складскому тикеру.",
+  "createterminal.ponder.shared.remote_terminal.bind": "Нажмите ПКМ по складскому тикеру, чтобы подключить кладовщик.",
+  "createterminal.ponder.shared.remote_terminal.use": "Нажмите ПКМ в воздухе, чтобы открыть экран запроса.",
+  "createterminal.ponder.shared.remote_terminal.in_range": "В определённой области, соединение будет выполнено."
+  "createterminal.ponder.shared.remote_terminal.out_range": "Вне этой области, соединения не будет. По умолчанию: 20 блоков.",
+  "createterminal.ponder.shared.remote_terminal.dimension": "Игрок и складской тикер должны быть в одном измерении.",
+  "createterminal.ponder.shared.remote_terminal.load": "Выбранные сладской тикер и складская система должны быть в загруженном чанке.",
+  "createterminal.ponder.shared.remote_terminal.no_chunk_loading": "Удалённый кладовщик не загружает чанки самостоятельно.",
+  "createterminal.ponder.shared.advanced_remote_terminal.multiple": "Продвинутый удалённый кладовщик может быть подключён к нескольким складским тикерам.",
+  "createterminal.ponder.shared.advanced_remote_terminal.bind": "Нажмите ПКМ по каждому складскому тикеру чтобы добавить их в кладовщика.",
+  "createterminal.ponder.shared.advanced_remote_terminal.nearest": "При использовании, он присоединится к ближайшему подключению.",
+  "createterminal.ponder.shared.advanced_remote_terminal.range": "Зелёная область показывает настроенный радиус. По умолчанию: 20 блоков.",
+  "createterminal.ponder.shared.advanced_remote_terminal.out_range": "Подключения вне настроенной области будут игнорированы.",
+  "createterminal.ponder.shared.advanced_remote_terminal.dimension": "Могут быть использованы только подключения в том же измерении.",
+  "createterminal.ponder.shared.advanced_remote_terminal.load": "Выбранные складской тикер и складская система должны быть в загруженном чанке.",
+  "createterminal.ponder.shared.advanced_remote_terminal.no_chunk_loading": "Продвинутый удалённый кладовщик не загружает чанки самостоятельно."
 }
