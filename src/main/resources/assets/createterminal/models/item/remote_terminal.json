@@ -3,11 +3,11 @@
   "textures": {
     "layer0": "createterminal:item/remote_terminal_off"
   },
-    "overrides": [
-      {"predicate": {"createterminal:styles": 1.0},"model": "createterminal:item/remote_terminal_on_blaze"},
-      {"predicate": {"createterminal:styles": 2.0},"model": "createterminal:item/remote_terminal_on_parrot"},
-      {"predicate": {"createterminal:styles": 3.0},"model": "createterminal:item/remote_terminal_on_cat"},
-      {"predicate": {"createterminal:styles": 4.0},"model": "createterminal:item/remote_terminal_on_cardboard"},
-      {"predicate": {"createterminal:styles": 5.0},"model": "createterminal:item/remote_terminal_on_end"}
-    ]
+  "overrides": [
+    {"predicate": {"createterminal:styles": 1.0},"model": "createterminal:item/remote_terminal_on_blaze"},
+    {"predicate": {"createterminal:styles": 2.0},"model": "createterminal:item/remote_terminal_on_parrot"},
+    {"predicate": {"createterminal:styles": 3.0},"model": "createterminal:item/remote_terminal_on_cat"},
+    {"predicate": {"createterminal:styles": 4.0},"model": "createterminal:item/remote_terminal_on_cardboard"},
+    {"predicate": {"createterminal:styles": 5.0},"model": "createterminal:item/remote_terminal_on_end"}
+  ]
 }

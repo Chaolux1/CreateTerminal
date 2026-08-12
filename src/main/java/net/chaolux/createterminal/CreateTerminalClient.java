@@ -1,10 +1,12 @@
 package net.chaolux.createterminal;
 
 import net.chaolux.createterminal.client.ClientAdvancementCache;
+import net.chaolux.createterminal.client.ponder.CreateTerminalPonderPlugin;
 import net.chaolux.createterminal.common.item.data.RemoteBinding;
 import net.chaolux.createterminal.common.utility.StyleUtils;
 import net.chaolux.createterminal.registry.item.ModItems;
 import net.chaolux.createterminal.registry.recipe.ModDataComponents;
+import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.component.DataComponents;
@@ -29,6 +31,7 @@ public class CreateTerminalClient {
 
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
+        PonderIndex.addPlugin(new CreateTerminalPonderPlugin());
         event.enqueueWork(()-> {
             ItemProperties.register(ModItems.CREATIVE_REMOTE_TERMINAL.get(),ResourceLocation.fromNamespaceAndPath("createterminal","bound"),(stack, world, entity, seed)-> {
                 RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);

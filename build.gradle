@@ -24,6 +24,17 @@ repositories {
         }
     }
     mavenLocal()
+    maven {
+        name='Create Maven'
+        url='https://maven.createmod.net'
+    }
+
+    maven {
+        url="https://maven.blamejared.com/"
+        content {
+            includeGroup "mezz.jei"
+        }
+    }
 }
 
 base {
@@ -95,6 +106,7 @@ configurations {
 
 dependencies {
     implementation "curse.maven:create-328085:6641610"
+    compileOnly "net.createmod.ponder:Ponder-NeoForge-1.21.1:1.0.59"
 
     // Specify the version of Minecraft to use.
     // Depending on the plugin applied there are several options. We will assume you applied the userdev plugin as shown above.
@@ -106,10 +118,10 @@ dependencies {
 
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+    compileOnly "mezz.jei:jei-1.21.1-common-api:19.21.0.247"
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:19.21.0.247"
     // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+    localRuntime "mezz.jei:jei-1.21.1-neoforge:19.21.0.247"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

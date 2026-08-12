@@ -16,7 +16,7 @@ public record RemoteBinding(List<Long> terminals, List<String> dims) {
     public static final StreamCodec<ByteBuf,RemoteBinding> STREAM_CODEC=StreamCodec.composite(ByteBufCodecs.VAR_LONG.apply(ByteBufCodecs.list()),RemoteBinding::terminals,ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),RemoteBinding::dims,RemoteBinding::new);
 
     public boolean contain(BlockPos pos, String dim) {
-        for(int i=0; i < terminals.size(); i++) {
+        for(int i=0; i < size(); i++) {
             if(terminals.get(i) == pos.asLong() && dims.get(i).equals(dim)) {
                 return true;
             }

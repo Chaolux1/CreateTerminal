@@ -51,6 +51,7 @@ public class CreateTerminal {
         }
         if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(ModItems.MEMORY_CORE.get());
+            event.accept(ModItems.MUSIC_DISC_TERMINAL_PROTOCOL.get());
         }
     }
 

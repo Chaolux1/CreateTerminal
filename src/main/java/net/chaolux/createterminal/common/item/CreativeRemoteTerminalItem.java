@@ -2,6 +2,7 @@ package net.chaolux.createterminal.common.item;
 
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import io.netty.buffer.Unpooled;
+import net.chaolux.createterminal.Config;
 import net.chaolux.createterminal.common.item.data.RemoteBinding;
 import net.chaolux.createterminal.common.menu.RemoteStockKeeperMenu;
 import net.chaolux.createterminal.registry.recipe.ModDataComponents;
@@ -46,7 +47,11 @@ public class CreativeRemoteTerminalItem extends Item {
         Level level=ctx.getLevel();
         BlockPos pos=ctx.getClickedPos();
         BlockEntity be=level.getBlockEntity(pos);
-        if(!(be instanceof StockTickerBlockEntity)) return InteractionResult.PASS;
+        Player player=ctx.getPlayer();
+        if(!(be instanceof StockTickerBlockEntity stockTickerBlockEntity)) return InteractionResult.PASS;
+        if(player == null) return InteractionResult.PASS;
+        if(level.isClientSide) return InteractionResult.SUCCESS;
+        if(!stockTickerBlockEntity.behaviour.mayInteractMessage(player)) return InteractionResult.FAIL;
         ItemStack stack=ctx.getItemInHand();
         String style=stack.getOrDefault(ModDataComponents.STYLE.get(),"");
         if(style.isEmpty()) {
@@ -55,25 +60,14 @@ public class CreativeRemoteTerminalItem extends Item {
         RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
         String dim=level.dimension().location().toString();
         if(binding.contain(pos,dim)) {
-            Player player=ctx.getPlayer();
-            if(player !=null) {
-                player.displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
-            }
+            level.playSound(null,pos,ModSounds.TERMINAL_LOST.get(),SoundSource.PLAYERS,1.0f,1.0f);
+            player.displayClientMessage(Component.translatable("tooltip.createterminal.bound_existing"),true);
             return InteractionResult.FAIL;
         }
         stack.set(ModDataComponents.REMOTE_BINDING.get(),binding.add(pos,dim));
-        if(!level.isClientSide) {
             level.playSound(null,pos, ModSounds.TERMINAL_ON.get(), SoundSource.PLAYERS,1.0f,1.0f);
-            Player player=ctx.getPlayer();
-            if(player !=null) {
-                player.getInventory().setChanged();
-                if(player.containerMenu !=null) {
-                    player.containerMenu.broadcastChanges();
-                }
-                player.displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
-            }
-        }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+            player.displayClientMessage(Component.translatable("tooltip.createterminal.bound_success",pos.toShortString()),true);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -82,6 +76,7 @@ public class CreativeRemoteTerminalItem extends Item {
         ItemStack stack=player.getItemInHand(hand);
         RemoteBinding binding=stack.getOrDefault(ModDataComponents.REMOTE_BINDING.get(),RemoteBinding.EMPTY);
         if(binding.size() == 0) {
+            player.level().playSound(null,player.blockPosition(),ModSounds.TERMINAL_LOST.get(),SoundSource.PLAYERS,1.0f,1.0f);
             player.displayClientMessage(Component.translatable("tooltip.createterminal.not_bound"),true);
             return InteractionResultHolder.pass(stack);
         }
@@ -93,27 +88,27 @@ public class CreativeRemoteTerminalItem extends Item {
             }
         }
         candidates.sort(Comparator.comparingDouble(p -> player.blockPosition().distSqr(p)));
+        StockTickerBlockEntity stockTickerBlock=null;
         BlockPos bestPos=null;
         for(BlockPos pos : candidates) {
             if(!level.hasChunkAt(pos)) continue;
             BlockEntity be=level.getBlockEntity(pos);
-            if(!(be instanceof StockTickerBlockEntity)) continue;
+            if(!(be instanceof StockTickerBlockEntity stockTickerBlockEntity)) continue;
             if(!level.getBlockState(pos).is(BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("create","stock_ticker")))) continue;
+            if(!stockTickerBlockEntity.behaviour.mayInteractMessage(player)) return InteractionResultHolder.fail(stack);
+            stockTickerBlock=stockTickerBlockEntity;
             bestPos=pos;
             break;
         }
-        if(bestPos==null) {
+        if(bestPos==null || stockTickerBlock == null) {
+            player.level().playSound(null,player.blockPosition(),ModSounds.TERMINAL_LOST.get(),SoundSource.PLAYERS,1.0f,1.0f);
             player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
             return InteractionResultHolder.fail(stack);
         }
         MenuType<?> menuType= BuiltInRegistries.MENU.get(ResourceLocation.fromNamespaceAndPath("create","stock_keeper_request"));
         if(menuType==null) return InteractionResultHolder.fail(stack);
-        BlockEntity blockEntity=level.getBlockEntity(bestPos);
-        if(!(blockEntity instanceof StockTickerBlockEntity stockTickerBlockEntity)) {
-            player.displayClientMessage(Component.translatable("tooltip.createterminal.lost"),true);
-            return InteractionResultHolder.fail(stack);
-        }
-        MenuProvider provider=new SimpleMenuProvider((id, inv, ply)->new RemoteStockKeeperMenu(menuType,id,inv,stockTickerBlockEntity),Component.literal("Stock Keeper"));
+        StockTickerBlockEntity stockTickerBlockEntity=stockTickerBlock;
+        MenuProvider provider=new SimpleMenuProvider((id, inv, ply)->new RemoteStockKeeperMenu(menuType,id,inv,stockTickerBlockEntity, Config.CREATIVE_TERMINAL_RANGE),Component.literal("Stock Keeper"));
         BlockPos finalBestPos=bestPos;
         ((ServerPlayer) player).openMenu(provider, data-> {
             data.writeBoolean(false);
@@ -144,22 +139,5 @@ public class CreativeRemoteTerminalItem extends Item {
         } else {
             tooltip.add(Component.translatable("tooltip.createterminal.not_bound").withStyle(ChatFormatting.GRAY));
         }
-    }
-
-    private static CompoundTag getCustomTag(ItemStack stack) {
-        if(!stack.has(DataComponents.CUSTOM_DATA)) return null;
-        return stack.get(DataComponents.CUSTOM_DATA).copyTag();
-    }
-
-    private static CompoundTag getOrCreateCustomTag(ItemStack stack) {
-        CompoundTag tag=getCustomTag(stack);
-        if(tag == null) tag=new CompoundTag();
-        if(!tag.contains("terminals",Tag.TAG_LIST)) tag.put("terminals",new ListTag());
-        if(!tag.contains("dims",Tag.TAG_LIST)) tag.put("dims",new ListTag());
-        return tag;
-    }
-
-    private static void setCustomTag(ItemStack stack, CompoundTag tag) {
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 }
