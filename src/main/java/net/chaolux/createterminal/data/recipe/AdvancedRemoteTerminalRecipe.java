@@ -1,6 +1,7 @@
 package net.chaolux.createterminal.data.recipe;
 
 import com.mojang.logging.LogUtils;
+import com.simibubi.create.foundation.recipe.DummyCraftingContainer;
 import net.chaolux.createterminal.common.item.AdvancedRemoteTerminalItem;
 import net.chaolux.createterminal.common.item.MemoryCoreItem;
 import net.chaolux.createterminal.registry.item.ModItems;
@@ -11,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -24,13 +26,11 @@ public class AdvancedRemoteTerminalRecipe implements CraftingRecipe {
     private final CraftingBookCategory category;
     private final Ingredient terminal;
     private final Ingredient core;
-    private final ItemStack result;
     public AdvancedRemoteTerminalRecipe(ResourceLocation id, CraftingBookCategory category) {
         this.id=id;
         this.category=category;
         this.terminal=Ingredient.of(ModItems.ADVANCED_REMOTE_TERMINAL.get());
         this.core=Ingredient.of(ModItems.MEMORY_CORE.get());
-        this.result=new ItemStack(ModItems.ADVANCED_REMOTE_TERMINAL.get());
     }
 
     @Override
@@ -53,19 +53,9 @@ public class AdvancedRemoteTerminalRecipe implements CraftingRecipe {
 
     @Override
     public ItemStack assemble(CraftingContainer inv, RegistryAccess access) {
-        ItemStack terminalItem=ItemStack.EMPTY;
-        for(int i=0; i < inv.getContainerSize(); i++) {
-            ItemStack stack = inv.getItem(i);
-            if (terminal.test(stack)) {
-                terminalItem = stack;
-                break;
-            }
-        }
-            if(terminalItem.isEmpty()) return ItemStack.EMPTY;
-            ItemStack result=terminalItem.copy();
-            CompoundTag tag=result.getOrCreateTag();
-            tag.putInt("expand",tag.getInt("expand") + 1);
-            return result;
+        ItemStack terminalItem=findTerminal(inv);
+        if(terminalItem.isEmpty()) return ItemStack.EMPTY;
+        return expandTerminal(terminalItem);
     }
 
     @Override
@@ -75,7 +65,7 @@ public class AdvancedRemoteTerminalRecipe implements CraftingRecipe {
 
     @Override
     public ItemStack getResultItem(RegistryAccess access) {
-        return result.copy();
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -101,9 +91,37 @@ public class AdvancedRemoteTerminalRecipe implements CraftingRecipe {
         return true;
     }
 
-
     @Override
     public CraftingBookCategory category() {
         return this.category;
+    }
+
+    @Override
+    public NonNullList<ItemStack> getRemainingItems(CraftingContainer craftingContainer) {
+        NonNullList<ItemStack> nonNullList=NonNullList.withSize(craftingContainer.getContainerSize(),ItemStack.EMPTY);
+        if(!(craftingContainer instanceof DummyCraftingContainer)) return nonNullList;
+        for(int index=0;index < craftingContainer.getContainerSize();index++) {
+            ItemStack itemStack=craftingContainer.getItem(index);
+            if(!terminal.test(itemStack)) continue;
+            nonNullList.set(index,expandTerminal(itemStack));
+            break;
+        }
+        return nonNullList;
+    }
+
+    private ItemStack findTerminal(CraftingContainer craftingContainer) {
+        for(int index=0;index < craftingContainer.getContainerSize();index++) {
+            ItemStack itemStack=craftingContainer.getItem(index);
+            if(terminal.test(itemStack)) return itemStack;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private ItemStack expandTerminal(ItemStack itemStack) {
+        ItemStack stack=itemStack.copy();
+        stack.setCount(1);
+        CompoundTag compoundTag=stack.getOrCreateTag();
+        compoundTag.putInt("expand",compoundTag.getInt("expand") + 1);
+        return stack;
     }
 }
