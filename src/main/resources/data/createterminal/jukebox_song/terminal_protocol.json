@@ -3,6 +3,6 @@
   "description": {
     "translate": "item.createterminal.music_disc_terminal_protocol.desc"
   },
-  "length_in_seconds": 132.0,
+  "length_in_seconds": 114.0,
   "sound_event": "createterminal:music_disc_terminal_protocol"
 }

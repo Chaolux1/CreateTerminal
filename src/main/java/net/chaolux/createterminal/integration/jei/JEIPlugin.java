@@ -29,7 +29,7 @@ import java.util.List;
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
     private static final ResourceLocation ID=ResourceLocation.fromNamespaceAndPath(CreateTerminal.MOD_ID,"jei_plugin");
-    private static final ResourceLocation TERMINAL_EXPAND=ResourceLocation.fromNamespaceAndPath(CreateTerminal.MOD_ID,"terminal_expand");
+    private static final ResourceLocation TERMINAL_EXPAND=ResourceLocation.fromNamespaceAndPath(CreateTerminal.MOD_ID,"terminal_expand_manual_only");
     private static final ResourceLocation TERMINAL_CLEAR=ResourceLocation.fromNamespaceAndPath(CreateTerminal.MOD_ID,"mixing/advanced_remote_terminal");
     private static final ResourceLocation CREATE_MIXING=ResourceLocation.fromNamespaceAndPath("create","mixing");
     private static final ResourceLocation CREATE_SHAPELESS=ResourceLocation.fromNamespaceAndPath("create","automatic_shapeless");

@@ -52,7 +52,7 @@
   "createterminal.ponder.shared.remote_terminal.first_bind": "Удалённый кладовщик может быть подключён к одному складскому тикеру.",
   "createterminal.ponder.shared.remote_terminal.bind": "Нажмите ПКМ по складскому тикеру, чтобы подключить кладовщик.",
   "createterminal.ponder.shared.remote_terminal.use": "Нажмите ПКМ в воздухе, чтобы открыть экран запроса.",
-  "createterminal.ponder.shared.remote_terminal.in_range": "В определённой области, соединение будет выполнено."
+  "createterminal.ponder.shared.remote_terminal.in_range": "В определённой области, соединение будет выполнено.",
   "createterminal.ponder.shared.remote_terminal.out_range": "Вне этой области, соединения не будет. По умолчанию: 20 блоков.",
   "createterminal.ponder.shared.remote_terminal.dimension": "Игрок и складской тикер должны быть в одном измерении.",
   "createterminal.ponder.shared.remote_terminal.load": "Выбранные сладской тикер и складская система должны быть в загруженном чанке.",

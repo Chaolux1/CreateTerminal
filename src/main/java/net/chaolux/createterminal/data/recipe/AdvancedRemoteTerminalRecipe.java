@@ -1,5 +1,6 @@
 package net.chaolux.createterminal.data.recipe;
 
+import com.simibubi.create.foundation.recipe.DummyCraftingContainer;
 import net.chaolux.createterminal.registry.item.ModItems;
 import net.chaolux.createterminal.registry.recipe.ModDataComponents;
 import net.chaolux.createterminal.registry.recipe.ModRecipes;
@@ -18,12 +19,10 @@ public class AdvancedRemoteTerminalRecipe implements CraftingRecipe {
     private final CraftingBookCategory category;
     private final Ingredient terminal;
     private final Ingredient core;
-    private final ItemStack result;
     public AdvancedRemoteTerminalRecipe(CraftingBookCategory category) {
         this.category=category;
         this.terminal=Ingredient.of(ModItems.ADVANCED_REMOTE_TERMINAL.get());
         this.core=Ingredient.of(ModItems.MEMORY_CORE.get());
-        this.result=new ItemStack(ModItems.ADVANCED_REMOTE_TERMINAL.get());
     }
 
     @Override
@@ -46,20 +45,9 @@ public class AdvancedRemoteTerminalRecipe implements CraftingRecipe {
 
     @Override
     public ItemStack assemble(CraftingInput inv, HolderLookup.Provider provider) {
-        ItemStack terminalItem=ItemStack.EMPTY;
-        for(int i=0; i < inv.size(); i++) {
-            ItemStack stack = inv.getItem(i);
-            if (terminal.test(stack)) {
-                terminalItem = stack;
-                break;
-            }
-        }
-            if(terminalItem.isEmpty()) return ItemStack.EMPTY;
-            ItemStack result=terminalItem.copy();
-            var type= ModDataComponents.EXPAND.get();
-            int current=result.getOrDefault(type,0);
-            result.set(type,current + 1);
-            return result;
+        ItemStack terminalItem=findTerminal(inv);
+        if(terminalItem.isEmpty()) return ItemStack.EMPTY;
+        return expandTerminal(terminalItem);
     }
 
     @Override
@@ -69,7 +57,7 @@ public class AdvancedRemoteTerminalRecipe implements CraftingRecipe {
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return result.copy();
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -94,5 +82,26 @@ public class AdvancedRemoteTerminalRecipe implements CraftingRecipe {
     @Override
     public CraftingBookCategory category() {
         return this.category;
+    }
+
+    @Override
+    public NonNullList<ItemStack> getRemainingItems(CraftingInput craftingInput) {
+        return NonNullList.withSize(craftingInput.size(),ItemStack.EMPTY);
+    }
+
+    private ItemStack findTerminal(CraftingInput craftingInput) {
+        for(int index=0;index < craftingInput.size();index++) {
+            ItemStack itemStack=craftingInput.getItem(index);
+            if(terminal.test(itemStack)) return itemStack;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack expandTerminal(ItemStack itemStack) {
+        ItemStack stack=itemStack.copy();
+        stack.setCount(1);
+        int current=stack.getOrDefault(ModDataComponents.EXPAND.get(),0);
+        stack.set(ModDataComponents.EXPAND.get(),current + 1);
+        return stack;
     }
 }

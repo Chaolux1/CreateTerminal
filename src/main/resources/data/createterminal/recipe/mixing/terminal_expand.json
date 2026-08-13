@@ -1,0 +1,16 @@
+{
+  "type": "createterminal:terminal_expand_mixing",
+  "ingredients": [
+    {
+      "item": "createterminal:advanced_remote_terminal"
+    },
+    {
+      "item": "createterminal:memory_core"
+    }
+  ],
+  "results": [
+    {
+      "id": "createterminal:advanced_remote_terminal"
+    }
+  ]
+}
