@@ -44,7 +44,7 @@ public class CreateTerminal
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
